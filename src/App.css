@@ -1,38 +1,1016 @@
-.App {
-  text-align: center;
+/* =========================================================
+   1. GLOBAL
+========================================================= */
+
+* {
+  box-sizing: border-box;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fa;
+  color: #1f2937;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+button,
+input,
+select {
+  font-family: inherit;
 }
 
-.App-header {
-  background-color: #282c34;
+.app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  width: 100%;
+}
+
+
+/* =========================================================
+   2. NAVBAR
+========================================================= */
+
+.navbar {
+  width: 100%;
+  min-height: 70px;
+  padding: 0 6%;
+
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #374151;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  color: #2563eb;
+}
+
+
+/* =========================================================
+   3. FOOTER
+========================================================= */
+
+.footer {
+  margin-top: auto;
+  padding: 35px 6%;
+
+  background: #111827;
+  color: white;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.footer h3 {
+  margin: 0 0 8px;
+}
+
+.footer p {
+  margin: 5px 0;
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   4. HOME PAGE
+========================================================= */
+
+.home {
+  width: 100%;
+}
+
+
+/* Hero */
+
+.hero {
+  padding: 100px 6%;
+  background: white;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: auto;
+}
+
+.hero-small-text {
+  margin-bottom: 20px;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+
+  color: #2563eb;
+}
+
+.hero h1 {
+  margin: 0 0 25px;
+
+  font-size: 52px;
+  line-height: 1.15;
+
+  color: #111827;
+}
+
+.hero-description {
+  max-width: 600px;
+  margin: 0 auto 35px;
+
+  font-size: 18px;
+  line-height: 1.6;
+
+  color: #6b7280;
+}
+
+
+/* Hero Buttons */
+
+.hero-buttons {
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  gap: 15px;
+}
+
+.primary-button,
+.secondary-button {
+  padding: 12px 24px;
+
+  border-radius: 6px;
+
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.primary-button {
+  background: #2563eb;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.primary-button:hover {
+  background: #1d4ed8;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.secondary-button {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+
+.secondary-button:hover {
+  background: #f3f4f6;
+}
+
+
+/* About */
+
+.about {
+  padding: 80px 6%;
+  text-align: center;
+}
+
+.about h2 {
+  margin-bottom: 12px;
+
+  font-size: 32px;
+  color: #111827;
+}
+
+.about-description {
+  margin-bottom: 40px;
+  color: #6b7280;
+}
+
+
+/* Features */
+
+.features {
+  max-width: 1000px;
+  margin: auto;
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 25px;
+}
+
+.feature-card {
+  padding: 30px;
+
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.feature-card h3 {
+  margin-top: 0;
+  color: #111827;
+}
+
+.feature-card p {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   5. ADD PRODUCT / EDIT PRODUCT
+========================================================= */
+
+.form-page {
+  padding: 60px 20px;
+}
+
+.form-container {
+  max-width: 600px;
+  margin: auto;
+
+  padding: 40px;
+
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+
+/* Form Header */
+
+.form-header {
+  margin-bottom: 35px;
+}
+
+.form-header p {
+  margin: 0 0 8px;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+
+  color: #2563eb;
+}
+
+.form-header h1 {
+  margin: 0 0 10px;
+
+  font-size: 32px;
+  color: #111827;
+}
+
+.form-header span {
+  color: #6b7280;
+}
+
+
+/* Form */
+
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #374151;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+
+  padding: 12px;
+
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+
+  outline: none;
+
+  font-size: 15px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+}
+
+
+/* Validation Error */
+
+.error {
+  margin: 6px 0 0;
+
+  font-size: 13px;
+
+  color: #dc2626;
+}
+
+
+/* Add / Save Button */
+
+.add-product-button {
+  width: 100%;
+
+  padding: 13px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: #2563eb;
+  color: white;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.add-product-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* =========================================================
+   6. PRODUCTS PAGE
+========================================================= */
+
+.products-page {
+  max-width: 1200px;
+  margin: auto;
+
+  padding: 60px 5%;
+}
+
+
+/* Products Header */
+
+.products-header {
+  margin-bottom: 40px;
+}
+
+.page-label {
+  margin-bottom: 10px;
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+
+  color: #2563eb;
+}
+
+.products-header h1 {
+  margin: 0 0 10px;
+
+  font-size: 38px;
+
+  color: #111827;
+}
+
+.products-header p {
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   7. PRODUCT CARDS
+========================================================= */
+
+/*
+   IMPORTANT:
+
+   This makes ALL product cards horizontal.
+
+   Desktop:
+   3 cards in one row
+
+   Example:
+
+   Card 1 | Card 2 | Card 3
+*/
+
+.products-list {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 20px;
+}
+
+
+/* Individual Product Card */
+
+.product-card {
+  width: 100%;
+
+  padding: 20px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 15px;
+
+  transition: 0.2s;
+}
+
+.product-card:hover {
+  border-color: #d1d5db;
+
+  transform: translateY(-3px);
+}
+
+
+/* Product Image */
+
+.product-image {
+  width: 100%;
+  height: 220px;
+
+  object-fit: cover;
+
+  border-radius: 8px;
+}
+
+
+/* Product Information */
+
+.product-info {
+  flex: 1;
+}
+
+.product-category {
+  margin: 0 0 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #2563eb;
+}
+
+.product-info h2 {
+  margin: 0 0 10px;
+
+  font-size: 22px;
+
+  color: #111827;
+}
+
+.product-price {
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #111827;
+}
+
+
+/* Product Buttons */
+
+.product-actions {
+  width: 100%;
+
+  display: flex;
+
+  gap: 8px;
+}
+
+.product-actions button {
+  flex: 1;
+
+  padding: 9px 10px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+
+/* View */
+
+.view-button {
+  background: #2563eb;
+
+  border: 1px solid #2563eb;
+
+  color: white;
+}
+
+.view-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* Edit */
+
+.edit-button {
+  background: white;
+
+  border: 1px solid #d1d5db;
+
+  color: #374151;
+}
+
+.edit-button:hover {
+  background: #f3f4f6;
+}
+
+
+/* Delete */
+
+.delete-button {
+  background: #111827;
+
+  border: 1px solid #111827;
+
+  color: white;
+}
+
+.delete-button:hover {
+  background: #374151;
+}
+
+
+/* No Products */
+
+.empty-products {
+  padding: 80px 20px;
+
+  text-align: center;
+
+  background: white;
+
+  border: 1px dashed #d1d5db;
+
+  border-radius: 10px;
+}
+
+.empty-products h2 {
+  margin-bottom: 10px;
+}
+
+.empty-products p {
+  color: #6b7280;
+}
+
+
+/* =========================================================
+   8. DELETE MODAL
+========================================================= */
+
+.modal {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 20px;
+
+  background: rgba(17, 24, 39, 0.55);
+
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  width: 100%;
+  max-width: 400px;
+
+  padding: 30px;
+
+  background: white;
+
+  border-radius: 12px;
+
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-content p {
+  color: #6b7280;
+
+  line-height: 1.5;
+}
+
+
+/* Modal Buttons */
+
+.modal-actions {
+  margin-top: 25px;
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+
+/* Cancel */
+
+.cancel-button {
+  background: white;
+
+  border: 1px solid #d1d5db;
+
+  color: #374151;
+}
+
+.cancel-button:hover {
+  background: #f3f4f6;
+}
+
+
+/* Confirm Delete */
+
+.confirm-delete-button {
+  background: #111827;
+
+  border: 1px solid #111827;
+
+  color: white;
+}
+
+.confirm-delete-button:hover {
+  background: #374151;
+}
+
+
+/* =========================================================
+   9. PRODUCT DETAILS PAGE
+========================================================= */
+
+.details-page {
+  width: 100%;
+  max-width: 1100px;
+
+  margin: 0 auto;
+
+  padding: 60px 5%;
+}
+
+
+/* Details Card */
+
+.details-card {
+  width: 100%;
+
+  padding: 35px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 50px;
+}
+
+
+/* Details Image */
+
+.details-image-container {
+  width: 50%;
+}
+
+.details-image {
+  width: 100%;
+  height: 400px;
+
+  object-fit: cover;
+
+  border-radius: 10px;
+}
+
+
+/* Details Information */
+
+.details-info {
+  flex: 1;
+}
+
+.details-category {
+  margin: 0 0 10px;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  color: #2563eb;
+}
+
+.details-info h1 {
+  margin: 0 0 15px;
+
+  font-size: 42px;
+
+  color: #111827;
+}
+
+.details-info h2 {
+  margin: 0 0 20px;
+
+  font-size: 28px;
+
+  color: #111827;
+}
+
+.details-description {
+  margin-bottom: 30px;
+
+  color: #6b7280;
+
+  line-height: 1.7;
+
+  font-size: 16px;
+}
+
+
+/* Back Button */
+
+.back-button {
+  padding: 12px 22px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background: #1d4ed8;
+}
+
+
+/* Product Not Found */
+
+.not-found {
+  padding: 60px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   10. TABLET
+========================================================= */
+
+@media (max-width: 900px) {
+
+  /*
+     Tablet:
+     2 cards in one row
+  */
+
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
   }
-  to {
-    transform: rotate(360deg);
+
+  .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+
+/* =========================================================
+   11. MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+  /* -------------------------
+     Navbar
+  ------------------------- */
+
+  .navbar {
+    padding: 15px 5%;
+
+    flex-direction: column;
+
+    gap: 15px;
+  }
+
+  .nav-links {
+    gap: 15px;
+
+    flex-wrap: wrap;
+
+    justify-content: center;
+  }
+
+
+  /* -------------------------
+     Footer
+  ------------------------- */
+
+  .footer {
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+
+  /* -------------------------
+     Home
+  ------------------------- */
+
+  .hero {
+    padding: 70px 5%;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+  }
+
+  .hero-description {
+    font-size: 16px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
+
+  /* -------------------------
+     About
+  ------------------------- */
+
+  .about {
+    padding: 60px 5%;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+
+  /* -------------------------
+     Form
+  ------------------------- */
+
+  .form-page {
+    padding: 30px 15px;
+  }
+
+  .form-container {
+    padding: 25px 20px;
+  }
+
+  .form-header h1 {
+    font-size: 28px;
+  }
+
+
+  /* -------------------------
+     Products
+  ------------------------- */
+
+  .products-page {
+    padding: 40px 5%;
+  }
+
+  .products-header h1 {
+    font-size: 32px;
+  }
+
+
+  /*
+     Mobile:
+     1 card per row
+  */
+
+  .products-list {
+    grid-template-columns: 1fr;
+  }
+
+  .product-card {
+    width: 100%;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 220px;
+  }
+
+
+  /* -------------------------
+     Product Details
+  ------------------------- */
+
+  .details-page {
+    padding: 30px 5%;
+  }
+
+  .details-card {
+    flex-direction: column;
+
+    gap: 25px;
+
+    padding: 20px;
+
+    align-items: stretch;
+  }
+
+  .details-image-container {
+    width: 100%;
+  }
+
+  .details-image {
+    width: 100%;
+    height: 280px;
+  }
+
+  .details-info h1 {
+    font-size: 30px;
+  }
+
+  .details-info h2 {
+    font-size: 24px;
+  }
+
+  .back-button {
+    width: 100%;
   }
 }
