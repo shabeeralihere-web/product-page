@@ -3,77 +3,56 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function ProductDetails() {
-
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-
+  // Get product when page loads
   useEffect(() => {
+    async function getProduct() {
+      try {
+        setIsLoading(true);
+
+        const response = await axios.get(
+          `http://localhost:8000/api/products/getProduct/${id}`
+        );
+
+        console.log(response.data);
+
+        setProduct(response.data.data);
+      } catch (error) {
+        console.log(error);
+
+        setProduct(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     getProduct();
   }, [id]);
 
-
-  async function getProduct() {
-
-    try {
-
-      setIsLoading(true);
-
-      const response = await axios.get(
-        `http://localhost:8000/api/products/getProduct/${id}`
-      );
-
-      console.log(response.data);
-
-      setProduct(response.data.data);
-
-    } catch (error) {
-
-      console.log(error);
-
-      setProduct(null);
-
-    } finally {
-
-      setIsLoading(false);
-
-    }
-  }
-
-
   // Loading state
-
   if (isLoading) {
-
     return (
       <div className="details-page">
-
         <div className="details-loading">
-
           <div className="loading-spinner"></div>
 
           <p>
             Loading product...
           </p>
-
         </div>
-
       </div>
     );
-
   }
 
-
   // Product not found
-
   if (!product) {
-
     return (
       <div className="details-page">
-
         <div className="not-found">
 
           <div className="not-found-icon">
@@ -96,21 +75,16 @@ function ProductDetails() {
           </button>
 
         </div>
-
       </div>
     );
-
   }
-
 
   return (
     <div className="details-page">
 
       <div className="details-card">
 
-
         {/* Product Image */}
-
         <div className="details-image-container">
 
           <img
@@ -121,9 +95,7 @@ function ProductDetails() {
 
         </div>
 
-
         {/* Product Information */}
-
         <div className="details-info">
 
           <p className="details-category">
@@ -143,7 +115,6 @@ function ProductDetails() {
             collection. You can manage this product
             from the products page.
           </p>
-
 
           <button
             className="back-button"

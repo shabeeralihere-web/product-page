@@ -63,15 +63,7 @@ function ProtectedRoute({ children, allowedRoles }) {
 function App() {
 
   // Add Product
-  function addProduct(newProduct) {
-
-    setProducts([
-      ...products,
-      newProduct
-    ]);
-
-  }
-
+ 
 
   // Delete Product
   function deleteProduct(name) {

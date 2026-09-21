@@ -13,27 +13,27 @@ function EditProduct() {
 
   // Get product when page loads
   useEffect(() => {
+    async function getProduct() {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/products/getProduct/${id}`
+        );
+
+        console.log(response.data);
+
+        const product = response.data.data;
+
+        setProductName(product.name);
+        setPrice(product.price);
+        setCategory(product.category);
+        setImage(product.image);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
     getProduct();
   }, [id]);
-
-  async function getProduct() {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/products/getProduct/${id}`
-      );
-
-      console.log(response.data);
-
-      const product = response.data.data;
-
-      setProductName(product.name);
-      setPrice(product.price);
-      setCategory(product.category);
-      setImage(product.image);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   // Update product
   async function handleSubmit(e) {
@@ -69,11 +69,9 @@ function EditProduct() {
 
   return (
     <div className="form-page">
-
       <div className="form-container">
 
         <div className="form-header">
-
           <p>PRODUCT MANAGEMENT</p>
 
           <h1>Edit Product</h1>
@@ -81,15 +79,12 @@ function EditProduct() {
           <span>
             Update your product information.
           </span>
-
         </div>
 
         <form onSubmit={handleSubmit}>
 
           {/* Name */}
-
           <div className="form-group">
-
             <label>Product Name</label>
 
             <input
@@ -97,14 +92,10 @@ function EditProduct() {
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
             />
-
           </div>
 
-
           {/* Price */}
-
           <div className="form-group">
-
             <label>Price</label>
 
             <input
@@ -113,21 +104,16 @@ function EditProduct() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
             />
-
           </div>
 
-
           {/* Category */}
-
           <div className="form-group">
-
             <label>Category</label>
 
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-
               <option value="Electronics">
                 Electronics
               </option>
@@ -147,16 +133,11 @@ function EditProduct() {
               <option value="Accessories">
                 Accessories
               </option>
-
             </select>
-
           </div>
 
-
           {/* Image */}
-
           <div className="form-group">
-
             <label>Image URL</label>
 
             <input
@@ -164,9 +145,7 @@ function EditProduct() {
               value={image}
               onChange={(e) => setImage(e.target.value)}
             />
-
           </div>
-
 
           <button
             type="submit"
@@ -178,7 +157,6 @@ function EditProduct() {
         </form>
 
       </div>
-
     </div>
   );
 }
