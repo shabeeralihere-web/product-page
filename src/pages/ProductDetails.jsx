@@ -1,21 +1,92 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-function ProductDetails({ products }) {
+function ProductDetails() {
 
-  const { name } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const product = products.find(
-    (item) => item.name === name
-  );
+  const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+
+  useEffect(() => {
+    getProduct();
+  }, [id]);
+
+
+  async function getProduct() {
+
+    try {
+
+      setIsLoading(true);
+
+      const response = await axios.get(
+        `http://localhost:8000/api/products/getProduct/${id}`
+      );
+
+      console.log(response.data);
+
+      setProduct(response.data.data);
+
+    } catch (error) {
+
+      console.log(error);
+
+      setProduct(null);
+
+    } finally {
+
+      setIsLoading(false);
+
+    }
+  }
+
+
+  // Loading state
+
+  if (isLoading) {
+
+    return (
+      <div className="details-page">
+
+        <div className="details-loading">
+
+          <div className="loading-spinner"></div>
+
+          <p>
+            Loading product...
+          </p>
+
+        </div>
+
+      </div>
+    );
+
+  }
+
+
+  // Product not found
 
   if (!product) {
+
     return (
       <div className="details-page">
 
         <div className="not-found">
-          <h2>Product Not Found</h2>
+
+          <div className="not-found-icon">
+            !
+          </div>
+
+          <h2>
+            Product Not Found
+          </h2>
+
+          <p>
+            The product you're looking for could not be found.
+          </p>
 
           <button
             onClick={() => navigate("/products")}
@@ -23,16 +94,22 @@ function ProductDetails({ products }) {
           >
             Back to Products
           </button>
+
         </div>
 
       </div>
     );
+
   }
+
 
   return (
     <div className="details-page">
 
       <div className="details-card">
+
+
+        {/* Product Image */}
 
         <div className="details-image-container">
 
@@ -44,6 +121,8 @@ function ProductDetails({ products }) {
 
         </div>
 
+
+        {/* Product Information */}
 
         <div className="details-info">
 
@@ -64,6 +143,7 @@ function ProductDetails({ products }) {
             collection. You can manage this product
             from the products page.
           </p>
+
 
           <button
             className="back-button"

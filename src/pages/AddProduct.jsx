@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-function AddProduct({ addProduct }) {
+function AddProduct() {
 
   const navigate = useNavigate();
 
@@ -12,7 +13,7 @@ function AddProduct({ addProduct }) {
 
   const [errors, setErrors] = useState({});
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const newErrors = {};
@@ -41,24 +42,37 @@ function AddProduct({ addProduct }) {
       return;
     }
 
-    const newProduct = {
-      name: name,
-      price: price,
-      category: category,
-      image: image
-    };
 
-    addProduct(newProduct);
+  // validation...
 
-    setName("");
-    setPrice("");
-    setCategory("");
-    setImage("");
-    setErrors({});
+  const newProduct = {
+    name: name,
+    price: price,
+    category: category,
+    image: image
+  };
 
-    navigate("/products");
+  const token = localStorage.getItem("accessToken");
+
+console.log("TOKEN:", token);
+ await axios.post(
+  "http://localhost:8000/api/products/addProduct",
+  newProduct,
+  {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+    }
   }
+);
 
+  setName("");
+  setPrice("");
+  setCategory("");
+  setImage("");
+  setErrors({});
+
+  navigate("/products");
+}
   return (
     <div className="form-page">
 
@@ -107,7 +121,7 @@ function AddProduct({ addProduct }) {
 
             <input
               type="number"
-              min="1"
+              min=""
               placeholder="Enter price"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
@@ -181,7 +195,7 @@ function AddProduct({ addProduct }) {
               <p className="error">{errors.image}</p>
             )}
 
-          </div>
+          </div>    
 
 
           <button

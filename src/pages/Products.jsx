@@ -1,8 +1,32 @@
-import React from "react";
-import Product from "../components/Product";
+import React, { useEffect } from "react";
+import axios from "axios"
+import Product from "../Components/Product";
+import { useState } from "react";
 
-function Products({ products, deleteProduct }) {
+function Products() {
 
+  const [products,setProducts] = useState([])
+
+  function handleProductDeleted(id) {
+  setProducts(
+    products.filter((product) => product._id !== id)
+  );
+}
+
+  useEffect(()=>{
+    getProducts();
+  },[]);
+  const getProducts = async ()=>{
+    try{
+      const response = await axios.get("http://localhost:8000/api/products/getProducts");
+       console.log(response.data);
+       setProducts(response.data.data);
+
+    }
+    catch(error){
+    console.log(error);
+    }
+  }
   return (
     <div className="products-page">
 
@@ -42,12 +66,14 @@ function Products({ products, deleteProduct }) {
           {products.map((product) => (
 
             <Product
-              key={product.name}
+              key={product._id}
+              id={product._id}
               name={product.name}
               price={product.price}
               category={product.category}
               image={product.image}
-              deleteProduct={deleteProduct}
+              // deleteProduct={deleteProduct}
+               onDelete={handleProductDeleted}
             />
 
           ))}

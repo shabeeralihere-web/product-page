@@ -1,19 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-function EditProduct({ products, setProducts }) {
-
-  const { name } = useParams();
+function EditProduct() {
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const product = products.find((item) => item.name === name);
+  const [productName, setProductName] = useState("");
+  const [price, setPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [image, setImage] = useState("");
 
-  const [productName, setProductName] = useState(product.name);
-  const [price, setPrice] = useState(product.price);
-  const [category, setCategory] = useState(product.category);
-  const [image, setImage] = useState(product.image);
+  // Get product when page loads
+  useEffect(() => {
+    getProduct();
+  }, [id]);
 
-  function handleSubmit(e) {
+  async function getProduct() {
+    try {
+      const response = await axios.get(
+        `http://localhost:8000/api/products/getProduct/${id}`
+      );
+
+      console.log(response.data);
+
+      const product = response.data.data;
+
+      setProductName(product.name);
+      setPrice(product.price);
+      setCategory(product.category);
+      setImage(product.image);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // Update product
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const updatedProduct = {
@@ -23,18 +46,25 @@ function EditProduct({ products, setProducts }) {
       image: image
     };
 
-    const updatedProducts = products.map((item) => {
+    try {
+      const token = localStorage.getItem("accessToken");
 
-      if (item.name === name) {
-        return updatedProduct;
-      }
+      const response = await axios.put(
+        `http://localhost:8000/api/products/updateProduct/${id}`,
+        updatedProduct,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
-      return item;
-    });
+      console.log(response.data);
 
-    setProducts(updatedProducts);
-
-    navigate("/products");
+      navigate("/products");
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -53,7 +83,6 @@ function EditProduct({ products, setProducts }) {
           </span>
 
         </div>
-
 
         <form onSubmit={handleSubmit}>
 
