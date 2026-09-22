@@ -1,0 +1,47 @@
+@media (max-width: 992px) {
+  :root {
+    --section-space: 80px;
+    --container-padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-space: 64px;
+    --container-padding: 16px;
+  }
+
+  .section-header {
+    margin-bottom: 32px;
+  }
+
+  .section-title {
+    font-size: clamp(28px, 8vw, 38px);
+  }
+
+  .section-description {
+    font-size: 15px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 46px;
+    padding-inline: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --section-space: 52px;
+    --container-padding: 14px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+}

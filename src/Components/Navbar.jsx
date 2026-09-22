@@ -1,198 +1,305 @@
 import React, { useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CartContext from "../Context/CartContext";
+import { useAuth } from "../Context/AuthContext";
+import {
+  FaHome,
+  FaBoxOpen,
+  FaShoppingCart,
+  FaUser,
+  FaChartBar,
+  FaPlus,
+  FaSignOutAlt,
+  FaBars,
+  FaTimes,
+} from "react-icons/fa";
+import "../Styles/Navbar.css";
 
 function Navbar() {
+  const { role, accessToken, logout } = useAuth();
 
-  const role = localStorage.getItem("role");
-  const accessToken = localStorage.getItem("accessToken");
+  const {
+    cartCount,
+    setCartItems,
+    setCartCount,
+  } = useContext(CartContext);
 
-  const { cartItems, setCartItems } = useContext(CartContext);
+  const navigate = useNavigate();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Calculate total quantity in cart
-  const cartCount = cartItems.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
-
-  // Open logout confirmation modal
   function handleLogoutClick() {
     setShowLogoutModal(true);
+    setMenuOpen(false);
   }
 
-  // Cancel logout
   function handleCancelLogout() {
     setShowLogoutModal(false);
   }
 
-  // Confirm logout
   function handleConfirmLogout() {
-
-    // Remove login and profile information
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("role");
-    localStorage.removeItem("firstName");
-    localStorage.removeItem("lastName");
-    localStorage.removeItem("email");
-
-    // Clear cart from React state
+    logout();
     setCartItems([]);
+    setCartCount(0);
+    setShowLogoutModal(false);
 
-    // Go to login page
-    window.location.href = "/login";
+    navigate("/login");
+  }
+
+  function closeMenu() {
+    setMenuOpen(false);
   }
 
   return (
     <>
-      <nav className="navbar">
+      <header className="navbar">
+        <div className="navbar__container">
+          <Link
+            to="/"
+            className="navbar__brand"
+            onClick={closeMenu}
+          >
+            <img
+  src="/ProductHub.png"
+  alt="ProductHub"
+  className="navbar__brand-logo"
+/>
 
-        <div className="logo">
-          ProductHub
-        </div>
-
-        <div className="nav-links">
-
-          {/* ================= HOME ================= */}
-
-          <Link to="/">
-            Home
+            <span className="navbar__brand-name">
+              Product<span>Hub</span>
+            </span>
           </Link>
 
+          <button
+            type="button"
+            className="navbar__menu-button"
+            onClick={() => setMenuOpen((previous) => !previous)}
+            aria-label="Toggle navigation"
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
 
-          {/* ================= USER LINKS ================= */}
-
-          {accessToken && role === "user" && (
-            <>
-              <Link to="/products">
-                Products
+          <nav
+            className={`navbar__navigation ${
+              menuOpen ? "navbar__navigation--open" : ""
+            }`}
+          >
+            <div className="navbar__links">
+              <Link
+                to="/"
+                className="navbar__link"
+                onClick={closeMenu}
+              >
+                <FaHome />
+                <span>Home</span>
               </Link>
 
-              <Link to="/cart">
-                Cart ({cartCount})
-              </Link>
+              {accessToken && role === "user" && (
+                <>
+                  <Link
+                    to="/products"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaBoxOpen />
+                    <span>Products</span>
+                  </Link>
 
-              <Link to="/profile">
-                Profile
-              </Link>
-            </>
-          )}
+                  <Link
+                    to="/cart"
+                    className="navbar__link navbar__link--cart"
+                    onClick={closeMenu}
+                  >
+                    <FaShoppingCart />
+                    <span>Cart</span>
 
+                    {cartCount > 0 && (
+                      <span className="navbar__cart-count">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
 
-          {/* ================= SELLER LINKS ================= */}
+                  <Link
+                    to="/profile"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaUser />
+                    <span>Profile</span>
+                  </Link>
+                </>
+              )}
 
-          {accessToken && role === "seller" && (
-            <>
-              <Link to="/products">
-                All Products
-              </Link>
+              {accessToken && role === "seller" && (
+                <>
+                  <Link
+                    to="/products"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaBoxOpen />
+                    <span>All Products</span>
+                  </Link>
 
-              <Link to="/my-products">
-                My Products
-              </Link>
+                  <Link
+                    to="/seller-dashboard"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaChartBar />
+                    <span>Dashboard</span>
+                  </Link>
 
-              <Link to="/cart">
-                Cart ({cartCount})
-              </Link>
+                  <Link
+                    to="/cart"
+                    className="navbar__link navbar__link--cart"
+                    onClick={closeMenu}
+                  >
+                    <FaShoppingCart />
+                    <span>Cart</span>
 
-              <Link to="/profile">
-                Profile
-              </Link>
-            </>
-          )}
+                    {cartCount > 0 && (
+                      <span className="navbar__cart-count">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Link>
 
+                  <Link
+                    to="/profile"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaUser />
+                    <span>Profile</span>
+                  </Link>
+                </>
+              )}
 
-          {/* ================= ADMIN LINKS ================= */}
+              {accessToken && role === "admin" && (
+                <>
+                  <Link
+                    to="/products"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaBoxOpen />
+                    <span>Products</span>
+                  </Link>
 
-          {accessToken && role === "admin" && (
-            <>
-              <Link to="/products">
-                Products
-              </Link>
+                  <Link
+                    to="/add-product"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaPlus />
+                    <span>Add Product</span>
+                  </Link>
 
-              <Link to="/add-product">
-                Add Product
-              </Link>
+                  <Link
+                    to="/admin-dashboard"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaChartBar />
+                    <span>Dashboard</span>
+                  </Link>
 
-              <Link to="/admin-dashboard">
-                Dashboard
-              </Link>
+                  <Link
+                    to="/profile"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaUser />
+                    <span>Profile</span>
+                  </Link>
+                </>
+              )}
 
-              <Link to="/profile">
-                Profile
-              </Link>
-            </>
-          )}
+              {!accessToken && (
+                <>
+                  <Link
+                    to="/signup"
+                    className="navbar__link"
+                    onClick={closeMenu}
+                  >
+                    <FaUser />
+                    <span>Signup</span>
+                  </Link>
 
+                  <Link
+                    to="/login"
+                    className="navbar__login"
+                    onClick={closeMenu}
+                  >
+                    <FaSignOutAlt />
+                    <span>Login</span>
+                  </Link>
+                </>
+              )}
 
-          {/* ================= LOGIN / SIGNUP ================= */}
-
-          {!accessToken && (
-            <>
-              <Link to="/signup">
-                Signup
-              </Link>
-
-              <Link to="/login">
-                Login
-              </Link>
-            </>
-          )}
-
-
-          {/* ================= LOGOUT ================= */}
-
-          {accessToken && (
-            <button
-              className="logout-button"
-              onClick={handleLogoutClick}
-            >
-              Logout
-            </button>
-          )}
-
+              {accessToken && (
+                <button
+                  type="button"
+                  className="navbar__logout"
+                  onClick={handleLogoutClick}
+                >
+                  <FaSignOutAlt />
+                  <span>Logout</span>
+                </button>
+              )}
+            </div>
+          </nav>
         </div>
-
-      </nav>
-
-
-      {/* ================= LOGOUT CONFIRMATION MODAL ================= */}
+      </header>
 
       {showLogoutModal && (
-        <div className="modal">
+        <div
+          className="logout-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="logout-title"
+        >
+          <div
+            className="logout-modal__backdrop"
+            onClick={handleCancelLogout}
+          />
 
-          <div className="modal-content">
+          <div className="logout-modal__content">
+            <div className="logout-modal__icon">
+              <FaSignOutAlt />
+            </div>
 
-            <h2>Logout?</h2>
+            <h2 id="logout-title">Logout?</h2>
 
             <p>
               Are you sure you want to logout from your account?
             </p>
 
-            <div className="modal-actions">
-
+            <div className="logout-modal__actions">
               <button
-                className="cancel-button"
+                type="button"
+                className="logout-modal__cancel"
                 onClick={handleCancelLogout}
               >
                 Cancel
               </button>
 
               <button
-                className="confirm-logout-button"
+                type="button"
+                className="logout-modal__confirm"
                 onClick={handleConfirmLogout}
               >
+                <FaSignOutAlt />
                 Logout
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
-
     </>
   );
 }

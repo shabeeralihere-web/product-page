@@ -1,20 +1,24 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import { CartProvider } from "./Context/CartContext";
+import React from "react";
+import ReactDOM from "react-dom/client";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <CartProvider>
-    <App />
-    </CartProvider>
-  </React.StrictMode>
+import "./Styles/variables.css";
+import "./Styles/global.css";
+import "./Styles/animations.css";
+import "./Styles/responsive.css";
+import App from "./App";
+import { CartProvider } from "./Context/CartContext";
+import { AuthProvider } from "./Context/AuthContext";
+
+const root = ReactDOM.createRoot(
+  document.getElementById("root")
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+root.render(
+  <React.StrictMode>
+    <AuthProvider>
+      <CartProvider>
+        <App />
+      </CartProvider>
+    </AuthProvider>
+  </React.StrictMode>
+);

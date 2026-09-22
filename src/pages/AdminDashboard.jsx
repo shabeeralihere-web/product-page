@@ -1,68 +1,63 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import {
+  FaUsers,
+  FaStore,
+  FaUserShield,
+  FaBoxOpen,
+  FaShoppingBag,
+} from "react-icons/fa";
+import api from "../api";
+import "../Styles/AdminDashboard.css";
 
 const AdminDashboard = () => {
-
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-
-  // ================= GET DASHBOARD DATA =================
-
   useEffect(() => {
     getDashboardData();
   }, []);
 
-
   async function getDashboardData() {
-
     try {
-
       const token = localStorage.getItem("accessToken");
 
       const [usersResponse, productsResponse] =
         await Promise.all([
-
-          axios.get(
+          api.get(
             "http://localhost:8000/api/auth/users",
             {
               headers: {
-                Authorization: `Bearer ${token}`
-              }
+                Authorization: `Bearer ${token}`,
+              },
             }
           ),
 
-          axios.get(
-            "http://localhost:8000/api/products/getProducts"
-          )
-
+          api.get(
+            "http://localhost:8000/api/products/getProducts",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          ),
         ]);
-
 
       setUsers(usersResponse.data.data);
       setProducts(productsResponse.data.data);
-
     } catch (error) {
-
-      console.log(error);
+      console.log("ADMIN DASHBOARD ERROR:", error);
 
       setError(
         error.response?.data?.message ||
-        "Failed to load dashboard data"
+          "Failed to load dashboard data"
       );
-
     } finally {
-
       setIsLoading(false);
-
     }
   }
-
-
-  // ================= COUNTS =================
 
   const totalUsers = users.filter(
     (user) => user.role === "user"
@@ -78,377 +73,399 @@ const AdminDashboard = () => {
 
   const totalProducts = products.length;
 
-
-  // ================= LOADING =================
-
   if (isLoading) {
-
     return (
-      <div className="admin-dashboard-page">
+      <div className="ph-admin-page">
+        <div className="ph-admin-loading">
+          <div className="ph-admin-spinner"></div>
 
-        <div className="admin-loading">
-
-          <div className="loading-spinner"></div>
-
-          <p>
-            Loading admin dashboard...
-          </p>
-
+          <p>Loading admin dashboard...</p>
         </div>
-
       </div>
     );
   }
-
-
-  // ================= ERROR =================
 
   if (error) {
-
     return (
-      <div className="admin-dashboard-page">
+      <div className="ph-admin-page">
+        <div className="ph-admin-error">
+          <div className="ph-admin-error-icon">!</div>
 
-        <div className="admin-error">
+          <h2>Unable to load dashboard</h2>
 
-          <h2>
-            Unable to load dashboard
-          </h2>
-
-          <p>
-            {error}
-          </p>
-
+          <p>{error}</p>
         </div>
-
       </div>
     );
   }
 
-
   return (
+    <div className="ph-admin-page">
 
-    <div className="admin-dashboard-page">
+      <div className="ph-admin-container">
 
+        {/* HEADER */}
 
-      {/* ================= HEADER ================= */}
+        <header className="ph-admin-header">
 
-      <div className="admin-dashboard-header">
+          <div className="ph-admin-header-content">
 
-        <div>
+            <span className="ph-admin-eyebrow">
+              ADMIN CENTER
+            </span>
 
-          <p className="page-label">
-            ADMIN CENTER
-          </p>
-
-          <h1>
-            Admin Dashboard
-          </h1>
-
-          <p>
-            Manage users, sellers and products from one place.
-          </p>
-
-        </div>
-
-      </div>
-
-
-      {/* ================= STATISTICS ================= */}
-
-      <div className="admin-stats-grid">
-
-
-        {/* USERS */}
-
-        <div className="admin-stat-card">
-
-          <div className="admin-stat-icon">
-            U
-          </div>
-
-          <div>
+            <h1>
+              Admin Dashboard
+            </h1>
 
             <p>
-              Total Users
+              Monitor users, sellers and products
+              from one centralized dashboard.
             </p>
 
-            <h2>
-              {totalUsers}
-            </h2>
+          </div>
+
+          <div className="ph-admin-header-icon">
+            <FaUserShield />
+          </div>
+
+        </header>
+
+
+        {/* STATS */}
+
+        <section className="ph-admin-stats">
+
+          <div className="ph-admin-stat-card">
+
+            <div className="ph-admin-stat-icon">
+              <FaUsers />
+            </div>
+
+            <div className="ph-admin-stat-content">
+
+              <span>
+                Total Users
+              </span>
+
+              <strong>
+                {totalUsers}
+              </strong>
+
+            </div>
 
           </div>
 
-        </div>
 
+          <div className="ph-admin-stat-card">
 
-        {/* SELLERS */}
+            <div className="ph-admin-stat-icon">
+              <FaStore />
+            </div>
 
-        <div className="admin-stat-card">
+            <div className="ph-admin-stat-content">
 
-          <div className="admin-stat-icon">
-            S
-          </div>
+              <span>
+                Total Sellers
+              </span>
 
-          <div>
+              <strong>
+                {totalSellers}
+              </strong>
 
-            <p>
-              Total Sellers
-            </p>
-
-            <h2>
-              {totalSellers}
-            </h2>
+            </div>
 
           </div>
 
-        </div>
 
+          <div className="ph-admin-stat-card">
 
-        {/* ADMINS */}
+            <div className="ph-admin-stat-icon">
+              <FaUserShield />
+            </div>
 
-        <div className="admin-stat-card">
+            <div className="ph-admin-stat-content">
 
-          <div className="admin-stat-icon">
-            A
-          </div>
+              <span>
+                Total Admins
+              </span>
 
-          <div>
+              <strong>
+                {totalAdmins}
+              </strong>
 
-            <p>
-              Total Admins
-            </p>
-
-            <h2>
-              {totalAdmins}
-            </h2>
+            </div>
 
           </div>
 
-        </div>
+
+          <div className="ph-admin-stat-card">
+
+            <div className="ph-admin-stat-icon">
+              <FaBoxOpen />
+            </div>
+
+            <div className="ph-admin-stat-content">
+
+              <span>
+                Total Products
+              </span>
+
+              <strong>
+                {totalProducts}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* USERS AND SELLERS */}
+
+        <section className="ph-admin-section">
+
+          <div className="ph-admin-section-header">
+
+            <div>
+              <span className="ph-admin-section-label">
+                ACCOUNT MANAGEMENT
+              </span>
+
+              <h2>
+                Users & Sellers
+              </h2>
+            </div>
+
+            <span className="ph-admin-count">
+              {users.length} accounts
+            </span>
+
+          </div>
+
+
+          <div className="ph-admin-table-container">
+
+            <table className="ph-admin-table">
+
+              <thead>
+
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                {users.map((user) => (
+
+                  <tr key={user._id}>
+
+                    <td>
+
+                      <div className="ph-admin-user">
+
+                        <div className="ph-admin-avatar">
+                          {user.firstName
+                            ?.charAt(0)
+                            .toUpperCase()}
+                        </div>
+
+                        <div className="ph-admin-user-info">
+
+                          <strong>
+                            {user.firstName}{" "}
+                            {user.lastName}
+                          </strong>
+
+                        </div>
+
+                      </div>
+
+                    </td>
+
+
+                    <td>
+
+                      <span className="ph-admin-email">
+                        {user.email}
+                      </span>
+
+                    </td>
+
+
+                    <td>
+
+                      <span
+                        className={`ph-admin-role ph-admin-role--${user.role}`}
+                      >
+                        {user.role}
+                      </span>
+
+                    </td>
+
+                  </tr>
+
+                ))}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </section>
 
 
         {/* PRODUCTS */}
 
-        <div className="admin-stat-card">
+        <section className="ph-admin-section">
 
-          <div className="admin-stat-icon">
-            P
-          </div>
+          <div className="ph-admin-section-header">
 
-          <div>
+            <div>
+              <span className="ph-admin-section-label">
+                PRODUCT MANAGEMENT
+              </span>
 
-            <p>
-              Total Products
-            </p>
+              <h2>
+                All Products
+              </h2>
+            </div>
 
-            <h2>
-              {totalProducts}
-            </h2>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      {/* ================= USER MANAGEMENT ================= */}
-
-      <div className="admin-section">
-
-        <div className="admin-section-header">
-
-          <div>
-
-            <p className="section-label">
-              ACCOUNT MANAGEMENT
-            </p>
-
-            <h2>
-              Users & Sellers
-            </h2>
+            <span className="ph-admin-count">
+              {products.length} products
+            </span>
 
           </div>
 
-          <span className="admin-section-count">
-            {users.length} accounts
-          </span>
 
-        </div>
+          <div className="ph-admin-table-container">
 
+            <table className="ph-admin-table">
 
-        <div className="admin-table-wrapper">
+              <thead>
 
-          <table className="admin-table">
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                </tr>
 
-            <thead>
+              </thead>
 
-              <tr>
+              <tbody>
 
-                <th>
-                  Name
-                </th>
+                {products.map((product) => (
 
-                <th>
-                  Email
-                </th>
+                  <tr key={product._id}>
 
-                <th>
-                  Role
-                </th>
+                    <td>
 
-              </tr>
+                      <div className="ph-admin-product">
 
-            </thead>
+                        <div className="ph-admin-product-image">
 
+                          <img
+                            src={`http://localhost:8000/${product.image}`}
+                            alt={product.name}
+                          />
 
-            <tbody>
+                        </div>
 
-              {users.map((user) => (
+                        <div className="ph-admin-product-info">
 
-                <tr key={user._id}>
+                          <strong>
+                            {product.name}
+                          </strong>
 
-                  <td>
-
-                    <div className="admin-user-name">
-
-                      <div className="admin-user-avatar">
-
-                        {user.firstName
-                          ?.charAt(0)
-                          .toUpperCase()}
+                        </div>
 
                       </div>
 
-                      <span>
-                        {user.firstName} {user.lastName}
+                    </td>
+
+
+                    <td>
+
+                      <span className="ph-admin-category">
+                        {product.category}
                       </span>
 
-                    </div>
-
-                  </td>
+                    </td>
 
 
-                  <td>
-                    {user.email}
-                  </td>
+                    <td>
 
+                      <strong className="ph-admin-price">
+                        ₹{product.price}
+                      </strong>
 
-                  <td>
+                    </td>
 
-                    <span
-                      className={`admin-role-badge ${user.role}`}
-                    >
-                      {user.role}
-                    </span>
+                  </tr>
 
-                  </td>
+                ))}
 
-                </tr>
+              </tbody>
 
-              ))}
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-
-      {/* ================= PRODUCT MANAGEMENT ================= */}
-
-      <div className="admin-section">
-
-        <div className="admin-section-header">
-
-          <div>
-
-            <p className="section-label">
-              PRODUCT MANAGEMENT
-            </p>
-
-            <h2>
-              All Products
-            </h2>
+            </table>
 
           </div>
 
-          <span className="admin-section-count">
-            {products.length} products
-          </span>
-
-        </div>
+        </section>
 
 
-        <div className="admin-table-wrapper">
+        {/* BOTTOM OVERVIEW */}
 
-          <table className="admin-table">
+        <section className="ph-admin-overview">
 
-            <thead>
+          <div className="ph-admin-overview-card">
 
-              <tr>
+            <div className="ph-admin-overview-icon">
+              <FaUsers />
+            </div>
 
-                <th>
-                  Product
-                </th>
+            <div>
 
-                <th>
-                  Category
-                </th>
+              <span>
+                Registered Accounts
+              </span>
 
-                <th>
-                  Price
-                </th>
+              <strong>
+                {users.length}
+              </strong>
 
-              </tr>
+            </div>
 
-            </thead>
-
-
-            <tbody>
-
-              {products.map((product) => (
-
-                <tr key={product._id}>
-
-                  <td>
-
-                    <div className="admin-product-name">
-
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                      />
-
-                      <span>
-                        {product.name}
-                      </span>
-
-                    </div>
-
-                  </td>
+          </div>
 
 
-                  <td>
-                    {product.category}
-                  </td>
+          <div className="ph-admin-overview-card">
 
+            <div className="ph-admin-overview-icon">
+              <FaShoppingBag />
+            </div>
 
-                  <td>
-                    ₹{product.price}
-                  </td>
+            <div>
 
-                </tr>
+              <span>
+                Available Products
+              </span>
 
-              ))}
+              <strong>
+                {products.length}
+              </strong>
 
-            </tbody>
+            </div>
 
-          </table>
+          </div>
 
-        </div>
+        </section>
 
       </div>
 

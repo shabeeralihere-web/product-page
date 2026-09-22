@@ -1,1040 +1,702 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import {
+  FaArrowRight,
+  FaBoxOpen,
+  FaShoppingCart,
+  FaStore,
+  FaMobileAlt,
+  FaLaptop,
+  FaTshirt,
+  FaHome,
+  FaHeadphones,
+  FaUser,
+  FaShieldAlt,
+  
+} from "react-icons/fa";
+import "../Styles/Home.css";
 
 function Home() {
-
   const accessToken = localStorage.getItem("accessToken");
   const role = localStorage.getItem("role");
   const firstName = localStorage.getItem("firstName");
 
-  // ============================================================
-  // LOGGED-IN USER HOME
-  // ============================================================
-
-  if (accessToken && role === "user") {
-
-    return (
-      <div className="home authenticated-home">
-
-        {/* ================= WELCOME ================= */}
-
-        <section className="welcome-section">
-
-          <div className="welcome-content">
-
-            <p className="section-label">
-              WELCOME BACK
-            </p>
-
-            <h1>
-              Hello{firstName ? `, ${firstName}` : ""} 👋
-            </h1>
-
-            <p>
-              Discover products, manage your cart and enjoy
-              a simple shopping experience.
-            </p>
-
-          </div>
-
-          <div className="welcome-action">
-
-            <Link
-              to="/products"
-              className="primary-button"
-            >
-              Browse Products
-            </Link>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= QUICK ACTIONS ================= */}
-
-        <section className="home-section">
-
-          <div className="section-heading">
-
-            <p className="section-label">
-              QUICK ACTIONS
-            </p>
-
-            <h2>
-              What would you like to do?
-            </h2>
-
-          </div>
-
-
-          <div className="quick-action-grid">
-
-            <Link
-              to="/products"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                P
-              </div>
-
-              <div>
-
-                <h3>
-                  Explore Products
-                </h3>
-
-                <p>
-                  Browse products and find something you like.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-
-            <Link
-              to="/cart"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                C
-              </div>
-
-              <div>
-
-                <h3>
-                  View Your Cart
-                </h3>
-
-                <p>
-                  Review your selected products and continue shopping.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-
-            <Link
-              to="/profile"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                U
-              </div>
-
-              <div>
-
-                <h3>
-                  Your Profile
-                </h3>
-
-                <p>
-                  View and manage your account information.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= SHOPPING SECTION ================= */}
-
-        <section className="home-highlight-section">
-
-          <div className="home-highlight-content">
-
-            <p className="section-label">
-              PRODUCTHUB MARKETPLACE
-            </p>
-
-            <h2>
-              Find products you'll love.
-            </h2>
-
-            <p>
-              Explore the available products and discover
-              everything ProductHub has to offer.
-            </p>
-
-            <Link
-              to="/products"
-              className="primary-button"
-            >
-              Start Shopping →
-            </Link>
-
-          </div>
-
-          <div className="home-highlight-visual">
-            <div className="highlight-visual-card">
-
-              <span>
-                PRODUCTHUB
-              </span>
-
-              <strong>
-                Explore
-              </strong>
-
-              <p>
-                Discover products in one place.
-              </p>
-
-            </div>
-          </div>
-
-        </section>
-
-      </div>
+  useEffect(() => {
+    const revealElements = document.querySelectorAll(
+      ".home-reveal, .home-reveal-scale"
     );
-  }
 
-
-  // ============================================================
-  // LOGGED-IN SELLER HOME
-  // ============================================================
-
-  if (accessToken && role === "seller") {
-
-    return (
-      <div className="home authenticated-home">
-
-        {/* ================= WELCOME ================= */}
-
-        <section className="welcome-section">
-
-          <div className="welcome-content">
-
-            <p className="section-label">
-              SELLER CENTER
-            </p>
-
-            <h1>
-              Welcome{firstName ? `, ${firstName}` : ""} 👋
-            </h1>
-
-            <p>
-              Manage your products, explore the marketplace
-              and grow your store from one place.
-            </p>
-
-          </div>
-
-          <div className="welcome-action">
-
-            <Link
-              to="/my-products"
-              className="primary-button"
-            >
-              My Products
-            </Link>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= STORE ACTIONS ================= */}
-
-        <section className="home-section">
-
-          <div className="section-heading">
-
-            <p className="section-label">
-              STORE MANAGEMENT
-            </p>
-
-            <h2>
-              Manage your store
-            </h2>
-
-            <p>
-              Everything you need to manage your products
-              is available here.
-            </p>
-
-          </div>
-
-
-          <div className="quick-action-grid">
-
-            <Link
-              to="/my-products"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                M
-              </div>
-
-              <div>
-
-                <h3>
-                  My Products
-                </h3>
-
-                <p>
-                  View, edit and manage the products you own.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-
-            <Link
-              to="/add-product"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                +
-              </div>
-
-              <div>
-
-                <h3>
-                  Add Product
-                </h3>
-
-                <p>
-                  Add a new product to your store.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-
-            <Link
-              to="/products"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                P
-              </div>
-
-              <div>
-
-                <h3>
-                  All Products
-                </h3>
-
-                <p>
-                  Browse the ProductHub marketplace.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= SELLER HIGHLIGHT ================= */}
-
-        <section className="home-highlight-section">
-
-          <div className="home-highlight-content">
-
-            <p className="section-label">
-              YOUR STORE
-            </p>
-
-            <h2>
-              Keep your products organized.
-            </h2>
-
-            <p>
-              Manage your product information from one
-              convenient place and keep your store up to date.
-            </p>
-
-            <Link
-              to="/my-products"
-              className="primary-button"
-            >
-              Manage My Products →
-            </Link>
-
-          </div>
-
-          <div className="home-highlight-visual">
-            <div className="highlight-visual-card">
-
-              <span>
-                SELLER
-              </span>
-
-              <strong>
-                Manage
-              </strong>
-
-              <p>
-                Your products. Your store.
-              </p>
-
-            </div>
-          </div>
-
-        </section>
-
-      </div>
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+      }
     );
-  }
 
-
-  // ============================================================
-  // LOGGED-IN ADMIN HOME
-  // ============================================================
-
-  if (accessToken && role === "admin") {
-
-    return (
-      <div className="home authenticated-home">
-
-        {/* ================= WELCOME ================= */}
-
-        <section className="welcome-section">
-
-          <div className="welcome-content">
-
-            <p className="section-label">
-              ADMIN CENTER
-            </p>
-
-            <h1>
-              Welcome{firstName ? `, ${firstName}` : ""} 👋
-            </h1>
-
-            <p>
-              Manage users, sellers and products across
-              the ProductHub platform.
-            </p>
-
-          </div>
-
-          <div className="welcome-action">
-
-            <Link
-              to="/admin-dashboard"
-              className="primary-button"
-            >
-              Open Dashboard
-            </Link>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= ADMIN ACTIONS ================= */}
-
-        <section className="home-section">
-
-          <div className="section-heading">
-
-            <p className="section-label">
-              PLATFORM MANAGEMENT
-            </p>
-
-            <h2>
-              Manage ProductHub
-            </h2>
-
-            <p>
-              Access the main tools for managing the platform.
-            </p>
-
-          </div>
-
-
-          <div className="quick-action-grid">
-
-            <Link
-              to="/admin-dashboard"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                D
-              </div>
-
-              <div>
-
-                <h3>
-                  Admin Dashboard
-                </h3>
-
-                <p>
-                  View users, sellers and product information.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-
-            <Link
-              to="/products"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                P
-              </div>
-
-              <div>
-
-                <h3>
-                  Products
-                </h3>
-
-                <p>
-                  View the products available on the platform.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-
-            <Link
-              to="/add-product"
-              className="quick-action-card"
-            >
-
-              <div className="quick-action-icon">
-                +
-              </div>
-
-              <div>
-
-                <h3>
-                  Add Product
-                </h3>
-
-                <p>
-                  Add a product to the ProductHub platform.
-                </p>
-
-              </div>
-
-              <span className="quick-action-arrow">
-                →
-              </span>
-
-            </Link>
-
-          </div>
-
-        </section>
-
-
-        {/* ================= ADMIN HIGHLIGHT ================= */}
-
-        <section className="home-highlight-section">
-
-          <div className="home-highlight-content">
-
-            <p className="section-label">
-              PLATFORM OVERVIEW
-            </p>
-
-            <h2>
-              Keep ProductHub organized.
-            </h2>
-
-            <p>
-              Use the admin dashboard to monitor accounts
-              and products from one central location.
-            </p>
-
-            <Link
-              to="/admin-dashboard"
-              className="primary-button"
-            >
-              Go to Dashboard →
-            </Link>
-
-          </div>
-
-          <div className="home-highlight-visual">
-            <div className="highlight-visual-card">
-
-              <span>
-                ADMIN
-              </span>
-
-              <strong>
-                Control
-              </strong>
-
-              <p>
-                Manage the platform from one place.
-              </p>
-
-            </div>
-          </div>
-
-        </section>
-
-      </div>
-    );
-  }
-
-
-  // ============================================================
-  // PUBLIC HOME
-  // ============================================================
+    revealElements.forEach((element) => {
+      observer.observe(element);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  const getPrimaryAction = () => {
+    if (accessToken && role === "seller") {
+      return {
+        text: "Seller Dashboard",
+        path: "/seller-dashboard",
+      };
+    }
+
+    if (accessToken && role === "admin") {
+      return {
+        text: "Admin Dashboard",
+        path: "/admin-dashboard",
+      };
+    }
+
+    if (accessToken) {
+      return {
+        text: "Explore Products",
+        path: "/products",
+      };
+    }
+
+    return {
+      text: "Explore Products",
+      path: "/products",
+    };
+  };
+
+  const primaryAction = getPrimaryAction();
 
   return (
-    <div className="home">
+    <main className="home-page">
 
-      {/* ================= HERO ================= */}
+      {accessToken && firstName && (
+        <div className="home-welcome">
+          <div className="home-container">
+            <span>
+              Welcome back, <strong>{firstName}</strong>
+            </span>
+
+            <Link to="/profile">
+              View Profile <FaArrowRight />
+            </Link>
+          </div>
+        </div>
+      )}
 
       <section className="home-hero">
+        <div className="home-hero__background-glow home-hero__background-glow--one" />
+        <div className="home-hero__background-glow home-hero__background-glow--two" />
 
-        <div className="hero-content">
+        <div className="home-container home-hero__container">
 
-          <div className="hero-badge">
-            PRODUCTHUB PLATFORM
+          <div className="home-hero__content home-reveal">
+            <span className="home-hero__eyebrow">
+              PRODUCTHUB MARKETPLACE
+            </span>
+
+            <h1>
+              Everything you need,
+              <span> in one place.</span>
+            </h1>
+
+            <p>
+              Discover products, shop with ease and manage your store
+              through one simple marketplace built for modern shopping.
+            </p>
+
+            <div className="home-hero__actions">
+              <Link
+                to={primaryAction.path}
+                className="home-button home-button--primary"
+              >
+                {primaryAction.text}
+                <FaArrowRight />
+              </Link>
+
+              {!accessToken && (
+                <Link
+                  to="/signup"
+                  className="home-button home-button--secondary"
+                >
+                  Create Account
+                </Link>
+              )}
+
+              {accessToken && role === "user" && (
+                <Link
+                  to="/cart"
+                  className="home-button home-button--secondary"
+                >
+                  View Cart
+                </Link>
+              )}
+
+              {accessToken && role === "seller" && (
+                <Link
+                  to="/add-product"
+                  className="home-button home-button--secondary"
+                >
+                  Add Product
+                </Link>
+              )}
+
+              {accessToken && role === "admin" && (
+                <Link
+                  to="/add-product"
+                  className="home-button home-button--secondary"
+                >
+                  Add Product
+                </Link>
+              )}
+            </div>
+
+            <div className="home-hero__trust">
+              <span>
+                <FaShieldAlt />
+                Simple
+              </span>
+
+              <span>
+                <FaBoxOpen />
+                Organized
+              </span>
+
+              <span>
+                <FaShoppingCart />
+                Easy to shop
+              </span>
+            </div>
           </div>
 
-          <h1>
-            Discover products.
-            <br />
-            <span>Manage your business.</span>
-          </h1>
+          <div className="home-hero__visual home-reveal-scale">
 
-          <p className="hero-description">
-            ProductHub brings products, shopping and seller
-            management together in one simple platform.
-          </p>
+            <div className="home-hero__glow" />
 
-          <div className="hero-buttons">
+            <div className="home-product-preview">
+
+              <div className="home-product-preview__top">
+                <div>
+                  <span>PRODUCTHUB</span>
+                  <strong>Featured collection</strong>
+                </div>
+
+                <div className="home-product-preview__status">
+                  <span />
+                  Live
+                </div>
+              </div>
+
+              <div className="home-product-preview__image">
+                <div className="home-product-preview__image-inner">
+                  <FaBoxOpen />
+                  <span>EXPLORE</span>
+                </div>
+              </div>
+
+              <div className="home-product-preview__bottom">
+                <div>
+                  <span>Discover something new</span>
+                  <strong>Products for everyday life</strong>
+                </div>
+
+                <Link to="/products">
+                  <FaArrowRight />
+                </Link>
+              </div>
+
+            </div>
+
+            <div className="home-floating-card home-floating-card--top">
+              <div className="home-floating-card__icon">
+                <FaShoppingCart />
+              </div>
+
+              <div>
+                <strong>Easy shopping</strong>
+                <span>Browse & add to cart</span>
+              </div>
+            </div>
+
+            <div className="home-floating-card home-floating-card--bottom">
+              <div className="home-floating-card__icon">
+                <FaStore />
+              </div>
+
+              <div>
+                <strong>For sellers</strong>
+                <span>Manage your products</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <section className="home-marquee-section">
+        <div className="home-marquee">
+          <div className="home-marquee__track">
+
+            <span>DISCOVER PRODUCTS</span>
+            <i>✦</i>
+            <span>SHOP WITH EASE</span>
+            <i>✦</i>
+            <span>MANAGE YOUR STORE</span>
+            <i>✦</i>
+            <span>PRODUCTHUB MARKETPLACE</span>
+            <i>✦</i>
+
+            <span>DISCOVER PRODUCTS</span>
+            <i>✦</i>
+            <span>SHOP WITH EASE</span>
+            <i>✦</i>
+            <span>MANAGE YOUR STORE</span>
+            <i>✦</i>
+            <span>PRODUCTHUB MARKETPLACE</span>
+            <i>✦</i>
+
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section home-categories">
+        <div className="home-container">
+
+          <div className="home-section-header home-reveal">
+            <span>EXPLORE</span>
+
+            <h2>Shop by category</h2>
+
+            <p>
+              Explore different types of products and find what fits your
+              needs.
+            </p>
+          </div>
+
+          <div className="home-category-grid">
 
             <Link
               to="/products"
-              className="primary-button"
+              className="home-category-card home-reveal"
             >
-              Explore Products
+              <div className="home-category-card__icon">
+                <FaMobileAlt />
+              </div>
+
+              <div>
+                <span>01</span>
+                <h3>Mobiles</h3>
+                <p>Smartphones & devices</p>
+              </div>
+
+              <FaArrowRight className="home-category-card__arrow" />
             </Link>
 
             <Link
-              to="/signup"
-              className="secondary-button"
+              to="/products"
+              className="home-category-card home-reveal"
             >
-              Create Account
+              <div className="home-category-card__icon">
+                <FaLaptop />
+              </div>
+
+              <div>
+                <span>02</span>
+                <h3>Electronics</h3>
+                <p>Tech for everyday life</p>
+              </div>
+
+              <FaArrowRight className="home-category-card__arrow" />
+            </Link>
+
+            <Link
+              to="/products"
+              className="home-category-card home-reveal"
+            >
+              <div className="home-category-card__icon">
+                <FaTshirt />
+              </div>
+
+              <div>
+                <span>03</span>
+                <h3>Fashion</h3>
+                <p>Style & essentials</p>
+              </div>
+
+              <FaArrowRight className="home-category-card__arrow" />
+            </Link>
+
+            <Link
+              to="/products"
+              className="home-category-card home-reveal"
+            >
+              <div className="home-category-card__icon">
+                <FaHome />
+              </div>
+
+              <div>
+                <span>04</span>
+                <h3>Home</h3>
+                <p>Things for your space</p>
+              </div>
+
+              <FaArrowRight className="home-category-card__arrow" />
+            </Link>
+
+            <Link
+              to="/products"
+              className="home-category-card home-reveal"
+            >
+              <div className="home-category-card__icon">
+                <FaHeadphones />
+              </div>
+
+              <div>
+                <span>05</span>
+                <h3>Accessories</h3>
+                <p>Useful everyday products</p>
+              </div>
+
+              <FaArrowRight className="home-category-card__arrow" />
             </Link>
 
           </div>
+        </div>
+      </section>
 
-          <div className="hero-note">
+      <section className="home-section home-features">
+        <div className="home-container">
 
-            <span>✓</span>
+          <div className="home-section-header home-reveal">
+            <span>WHY PRODUCTHUB</span>
 
-            Built for shoppers, sellers and administrators
+            <h2>Simple by design.</h2>
+
+            <p>
+              ProductHub keeps the shopping and product management experience
+              focused, organized and easy to use.
+            </p>
+          </div>
+
+          <div className="home-feature-grid">
+
+            <article className="home-feature-card home-reveal">
+              <div className="home-feature-card__number">
+                01
+              </div>
+
+              <div className="home-feature-card__icon">
+                <FaBoxOpen />
+              </div>
+
+              <h3>Discover products</h3>
+
+              <p>
+                Browse products through a clean marketplace and quickly find
+                what you are looking for.
+              </p>
+
+              <Link to="/products">
+                Explore products
+                <FaArrowRight />
+              </Link>
+            </article>
+
+            <article className="home-feature-card home-reveal">
+              <div className="home-feature-card__number">
+                02
+              </div>
+
+              <div className="home-feature-card__icon">
+                <FaShoppingCart />
+              </div>
+
+              <h3>Shop with ease</h3>
+
+              <p>
+                Add products to your cart and manage your shopping experience
+                from one convenient place.
+              </p>
+
+              <Link to="/products">
+                Start shopping
+                <FaArrowRight />
+              </Link>
+            </article>
+
+            <article className="home-feature-card home-reveal">
+              <div className="home-feature-card__number">
+                03
+              </div>
+
+              <div className="home-feature-card__icon">
+                <FaStore />
+              </div>
+
+              <h3>Manage your store</h3>
+
+              <p>
+                Sellers can add and manage products while keeping their store
+                organized.
+              </p>
+
+              <Link to="/signup">
+                Start selling
+                <FaArrowRight />
+              </Link>
+            </article>
+
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section home-process">
+        <div className="home-container">
+
+          <div className="home-process__layout">
+
+            <div className="home-process__intro home-reveal">
+              <span>HOW IT WORKS</span>
+
+              <h2>
+                From discovery
+                <span> to checkout.</span>
+              </h2>
+
+              <p>
+                ProductHub keeps every important step simple, whether you are
+                shopping for something new or managing products as a seller.
+              </p>
+
+              <Link
+                to="/products"
+                className="home-text-link"
+              >
+                Explore marketplace
+                <FaArrowRight />
+              </Link>
+            </div>
+
+            <div className="home-process__steps">
+
+              <div className="home-process-step home-reveal">
+                <span className="home-process-step__number">
+                  01
+                </span>
+
+                <div>
+                  <h3>Explore</h3>
+
+                  <p>
+                    Browse the available products and discover something
+                    useful.
+                  </p>
+                </div>
+              </div>
+
+              <div className="home-process-step home-reveal">
+                <span className="home-process-step__number">
+                  02
+                </span>
+
+                <div>
+                  <h3>Choose</h3>
+
+                  <p>
+                    Open a product, check its details and decide what you want.
+                  </p>
+                </div>
+              </div>
+
+              <div className="home-process-step home-reveal">
+                <span className="home-process-step__number">
+                  03
+                </span>
+
+                <div>
+                  <h3>Shop</h3>
+
+                  <p>
+                    Add products to your cart and continue with your shopping.
+                  </p>
+                </div>
+              </div>
+
+            </div>
 
           </div>
 
         </div>
+      </section>
 
+      <section className="home-section home-roles">
+        <div className="home-container">
 
-        {/* ================= HERO VISUAL ================= */}
+          <div className="home-section-header home-reveal">
+            <span>ONE PLATFORM</span>
 
-        <div className="hero-visual">
+            <h2>Built around your role.</h2>
 
-          <div className="hero-main-card">
+            <p>
+              ProductHub provides different tools depending on how you use
+              the platform.
+            </p>
+          </div>
 
-            <div className="hero-card-top">
+          <div className="home-role-grid">
 
-              <span className="hero-card-label">
-                ProductHub
-              </span>
-
-              <span className="hero-card-status">
-                ● Live
-              </span>
-
-            </div>
-
-
-            <div className="hero-product-preview">
-
-              <div className="preview-image">
-                <span>
-                  PRODUCT
-                </span>
-              </div>
-
-
-              <div className="preview-info">
-
-                <p>
-                  Featured Product
-                </p>
-
-                <h3>
-                  Modern shopping experience
-                </h3>
-
-
-                <div className="preview-bottom">
-
-                  <strong>
-                    ₹2,499
-                  </strong>
-
-                  <button>
-                    View
-                  </button>
-
+            <article className="home-role-card home-reveal">
+              <div className="home-role-card__top">
+                <div className="home-role-card__icon">
+                  <FaUser />
                 </div>
 
+                <span>USER</span>
               </div>
 
-            </div>
-
-          </div>
-
-
-          <div className="floating-card floating-card-one">
-
-            <span className="floating-icon">
-              ✓
-            </span>
-
-            <div>
-
-              <strong>
-                Easy shopping
-              </strong>
+              <h3>Shop simply.</h3>
 
               <p>
-                Simple & organized
+                Discover products, manage your cart and keep your shopping
+                experience organized.
               </p>
 
-            </div>
+              <Link to="/products">
+                Browse products
+                <FaArrowRight />
+              </Link>
+            </article>
 
-          </div>
+            <article className="home-role-card home-role-card--featured home-reveal">
+              <div className="home-role-card__top">
+                <div className="home-role-card__icon">
+                  <FaStore />
+                </div>
 
+                <span>SELLER</span>
+              </div>
 
-          <div className="floating-card floating-card-two">
-
-            <span className="floating-icon">
-              ↗
-            </span>
-
-            <div>
-
-              <strong>
-                For sellers
-              </strong>
+              <h3>Build your store.</h3>
 
               <p>
-                Manage products easily
+                Add products, manage your listings and keep your marketplace
+                presence organized.
               </p>
 
-            </div>
+              <Link to="/signup">
+                Become a seller
+                <FaArrowRight />
+              </Link>
+            </article>
 
-          </div>
+            <article className="home-role-card home-reveal">
+              <div className="home-role-card__top">
+                <div className="home-role-card__icon">
+                  <FaShieldAlt />
+                </div>
 
-        </div>
+                <span>ADMIN</span>
+              </div>
 
-      </section>
-
-
-      {/* ================= PLATFORM FLOW ================= */}
-
-      <section className="platform-stats">
-
-        <div className="stat-item">
-          <strong>01</strong>
-          <span>Discover</span>
-        </div>
-
-        <div className="stat-item">
-          <strong>02</strong>
-          <span>Manage</span>
-        </div>
-
-        <div className="stat-item">
-          <strong>03</strong>
-          <span>Shop</span>
-        </div>
-
-        <div className="stat-item">
-          <strong>04</strong>
-          <span>Grow</span>
-        </div>
-
-      </section>
-
-
-      {/* ================= FEATURES ================= */}
-
-      <section className="home-section">
-
-        <div className="section-heading">
-
-          <p className="section-label">
-            EVERYTHING IN ONE PLACE
-          </p>
-
-          <h2>
-            A better way to manage products
-          </h2>
-
-          <p>
-            ProductHub is designed around the complete product
-            experience — from discovering products to managing them.
-          </p>
-
-        </div>
-
-
-        <div className="platform-features">
-
-          <div className="platform-feature-card">
-
-            <div className="feature-number">
-              01
-            </div>
-
-            <h3>
-              Explore Products
-            </h3>
-
-            <p>
-              Browse products in a clean and organized
-              interface and quickly find what you need.
-            </p>
-
-            <Link to="/products">
-              Browse products →
-            </Link>
-
-          </div>
-
-
-          <div className="platform-feature-card">
-
-            <div className="feature-number">
-              02
-            </div>
-
-            <h3>
-              Sell & Manage
-            </h3>
-
-            <p>
-              Sellers can manage their products and keep
-              their product information organized.
-            </p>
-
-            <Link to="/signup">
-              Start selling →
-            </Link>
-
-          </div>
-
-
-          <div className="platform-feature-card">
-
-            <div className="feature-number">
-              03
-            </div>
-
-            <h3>
-              Shop with Ease
-            </h3>
-
-            <p>
-              Users can add products to their cart and
-              manage their shopping experience easily.
-            </p>
-
-            <Link to="/products">
-              Start shopping →
-            </Link>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      {/* ================= USER TYPES ================= */}
-
-      <section className="roles-section">
-
-        <div className="section-heading">
-
-          <p className="section-label">
-            ONE PLATFORM
-          </p>
-
-          <h2>
-            Built for every role
-          </h2>
-
-          <p>
-            Different users get the tools they need without
-            unnecessary complexity.
-          </p>
-
-        </div>
-
-
-        <div className="role-cards">
-
-          <div className="role-card">
-
-            <span className="role-icon">
-              U
-            </span>
-
-            <div>
-
-              <h3>
-                User
-              </h3>
+              <h3>Manage the platform.</h3>
 
               <p>
-                Discover products, add items to your cart
-                and manage your shopping experience.
+                Manage products and platform activity through the administration
+                tools.
               </p>
 
-            </div>
+              <Link to="/login">
+                Admin login
+                <FaArrowRight />
+              </Link>
+            </article>
 
           </div>
 
+        </div>
+      </section>
 
-          <div className="role-card">
+      <section className="home-marquee-section home-marquee-section--secondary">
+        <div className="home-marquee">
+          <div className="home-marquee__track home-marquee__track--reverse">
 
-            <span className="role-icon">
-              S
-            </span>
+            <span>PRODUCTS</span>
+            <i>✦</i>
+            <span>SHOPPING</span>
+            <i>✦</i>
+            <span>SELLING</span>
+            <i>✦</i>
+            <span>PRODUCTHUB</span>
+            <i>✦</i>
 
-            <div>
-
-              <h3>
-                Seller
-              </h3>
-
-              <p>
-                Add and manage products while keeping your
-                store organized.
-              </p>
-
-            </div>
+            <span>PRODUCTS</span>
+            <i>✦</i>
+            <span>SHOPPING</span>
+            <i>✦</i>
+            <span>SELLING</span>
+            <i>✦</i>
+            <span>PRODUCTHUB</span>
+            <i>✦</i>
 
           </div>
+        </div>
+      </section>
 
+      <section className="home-cta-section">
+        <div className="home-container">
 
-          <div className="role-card">
+          <div className="home-cta home-reveal">
 
-            <span className="role-icon">
-              A
-            </span>
+            <div className="home-cta__content">
+              <span>GET STARTED</span>
 
-            <div>
-
-              <h3>
-                Admin
-              </h3>
+              <h2>
+                Ready to explore
+                <span> ProductHub?</span>
+              </h2>
 
               <p>
-                Manage the platform and maintain control
-                over the product ecosystem.
+                Find products, start shopping or create your store today.
               </p>
+            </div>
 
+            <div className="home-cta__actions">
+              <Link
+                to="/products"
+                className="home-button home-button--primary"
+              >
+                Explore Products
+                <FaArrowRight />
+              </Link>
+
+              {!accessToken && (
+                <Link
+                  to="/signup"
+                  className="home-button home-button--secondary"
+                >
+                  Create Account
+                </Link>
+              )}
             </div>
 
           </div>
 
         </div>
-
       </section>
 
-
-      {/* ================= CTA ================= */}
-
-      <section className="home-cta">
-
-        <div>
-
-          <p className="section-label">
-            GET STARTED
-          </p>
-
-          <h2>
-            Ready to explore ProductHub?
-          </h2>
-
-          <p>
-            Create your account and start exploring the platform.
-          </p>
-
-        </div>
-
-
-        <Link
-          to="/signup"
-          className="cta-button"
-        >
-          Get Started →
-        </Link>
-
-      </section>
-
-    </div>
+    </main>
   );
 }
 

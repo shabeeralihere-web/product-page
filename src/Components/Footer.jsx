@@ -1,201 +1,135 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
+import { FaGithub, FaLinkedinIn } from "react-icons/fa";
+import "../Styles/Footer.css";
 
 function Footer() {
-
-  const accessToken = localStorage.getItem("accessToken");
-  const role = localStorage.getItem("role");
+  const { accessToken, role } = useAuth();
 
   return (
     <footer className="footer">
+      <div className="footer__container">
 
-      <div className="footer-container">
+        <div className="footer__main">
 
-        {/* Brand */}
+          <div className="footer__brand">
+            <Link to="/" className="footer__brand-link">
+              <img
+                src="/ProductHub.png"
+                alt="ProductHub"
+                className="footer__logo"
+              />
 
-        <div className="footer-brand">
+              <span className="footer__brand-name">
+                Product<span>Hub</span>
+              </span>
+            </Link>
 
-          <h3>ProductHub</h3>
+            <p className="footer__description">
+              Discover products, manage your store and shop with ease.
+            </p>
 
-          <p>
-            A simple platform to discover products,
-            manage your store and shop with ease.
-          </p>
+            <div className="footer__socials">
+              <a
+                href="https://github.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="footer__social-link"
+                aria-label="GitHub"
+              >
+                <FaGithub />
+              </a>
 
-        </div>
+              <a
+                href="https://www.linkedin.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="footer__social-link"
+                aria-label="LinkedIn"
+              >
+                <FaLinkedinIn />
+              </a>
+            </div>
+          </div>
 
+          <div className="footer__column">
+            <h4>Platform</h4>
 
-        {/* Platform */}
+            <Link to="/">
+              Home
+            </Link>
 
-        <div className="footer-column">
-
-          <h4>Platform</h4>
-
-          <Link to="/">
-            Home
-          </Link>
-
-          {accessToken && (
             <Link to="/products">
               Products
             </Link>
-          )}
+          </div>
 
-          {!accessToken && (
-            <Link to="/signup">
-              Create Account
-            </Link>
-          )}
+          <div className="footer__column">
+            <h4>Account</h4>
 
-        </div>
+            {accessToken ? (
+              <>
+                <Link to="/profile">
+                  Profile
+                </Link>
 
+                <Link to="/cart">
+                  Cart
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/login">
+                  Login
+                </Link>
 
-        {/* Role Based Links */}
+                <Link to="/signup">
+                  Signup
+                </Link>
+              </>
+            )}
+          </div>
 
-        <div className="footer-column">
+          {accessToken && (role === "seller" || role === "admin") && (
+            <div className="footer__column">
+              <h4>
+                {role === "seller" ? "Seller" : "Management"}
+              </h4>
 
-          <h4>
-            {role === "seller"
-              ? "Store"
-              : role === "admin"
-              ? "Management"
-              : "For Users"}
-          </h4>
+              {role === "seller" && (
+                <Link to="/seller-dashboard">
+                  Dashboard
+                </Link>
+              )}
 
-
-          {/* USER */}
-
-          {accessToken && role === "user" && (
-            <>
-              <Link to="/products">
-                Explore Products
-              </Link>
-
-              <Link to="/cart">
-                Shopping Cart
-              </Link>
-
-              <Link to="/profile">
-                My Profile
-              </Link>
-            </>
-          )}
-
-
-          {/* SELLER */}
-
-          {accessToken && role === "seller" && (
-            <>
-              <Link to="/products">
-                All Products
-              </Link>
-
-              <Link to="/my-products">
-                My Products
-              </Link>
+              {role === "admin" && (
+                <Link to="/admin-dashboard">
+                  Dashboard
+                </Link>
+              )}
 
               <Link to="/add-product">
                 Add Product
               </Link>
-            </>
-          )}
-
-
-          {/* ADMIN */}
-
-          {accessToken && role === "admin" && (
-            <>
-              <Link to="/products">
-                Products
-              </Link>
-
-              <Link to="/add-product">
-                Add Product
-              </Link>
-
-              <Link to="/admin-dashboard">
-                Admin Dashboard
-              </Link>
-            </>
-          )}
-
-
-          {/* LOGGED OUT */}
-
-          {!accessToken && (
-            <>
-              <Link to="/login">
-                Login
-              </Link>
-
-              <Link to="/signup">
-                Create Account
-              </Link>
-            </>
+            </div>
           )}
 
         </div>
 
+        <div className="footer__divider" />
 
-        {/* Account / Seller */}
+        <div className="footer__bottom">
+          <p>
+            © 2026 ProductHub. All rights reserved.
+          </p>
 
-        <div className="footer-column">
-
-          <h4>
-            {accessToken
-              ? "Account"
-              : "For Sellers"}
-          </h4>
-
-
-          {/* LOGGED OUT */}
-
-          {!accessToken && (
-            <>
-              <Link to="/signup">
-                Become a Seller
-              </Link>
-
-              <Link to="/login">
-                Seller Login
-              </Link>
-            </>
-          )}
-
-
-          {/* LOGGED IN */}
-
-          {accessToken && (
-            <>
-              <Link to="/">
-                My Home
-              </Link>
-
-              <Link to="/profile">
-                Profile
-              </Link>
-            </>
-          )}
-
+          <p>
+            Built with MERN Stack
+          </p>
         </div>
 
       </div>
-
-
-      {/* Bottom */}
-
-      <div className="footer-bottom">
-
-        <p>
-          © 2026 ProductHub. All rights reserved.
-        </p>
-
-        <p>
-          Built with MERN Stack
-        </p>
-
-      </div>
-
     </footer>
   );
 }

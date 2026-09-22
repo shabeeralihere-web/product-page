@@ -1,8 +1,18 @@
 import React, { useState, useContext } from "react";
-import axios from "axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import CartContext from "../Context/CartContext";
+
+import {
+  FaEdit,
+  FaTrash,
+  FaCartPlus,
+  FaArrowRight,
+  FaTimes,
+} from "react-icons/fa";
+
+import "../Styles/Product.css";
 
 function Product({
   id,
@@ -11,24 +21,35 @@ function Product({
   category,
   image,
   onDelete,
-  isMyProduct = false
+  isMyProduct = false,
 }) {
-
   const navigate = useNavigate();
 
   const role = localStorage.getItem("role");
 
-  const { getCart } = useContext(CartContext);
+  const { getCart, setCartCount } = useContext(CartContext);
 
   const [showModal, setShowModal] = useState(false);
+  const [showCartModal, setShowCartModal] = useState(false);
 
+  const [cartModalMessage, setCartModalMessage] = useState({
+    title: "",
+    message: "",
+  });
 
   // ================= VIEW PRODUCT =================
 
   function handleView() {
+    if (role === "admin") {
+      return;
+    }
+
+    if (role === "seller" && isMyProduct) {
+      return;
+    }
+
     navigate(`/product/${id}`);
   }
-
 
   // ================= EDIT PRODUCT =================
 
@@ -36,67 +57,67 @@ function Product({
     navigate(`/edit-product/${id}`);
   }
 
-
   // ================= ADD TO CART =================
 
   async function handleAddToCart() {
-
     try {
-
       const token = localStorage.getItem("accessToken");
 
-      const response = await axios.post(
+      const response = await api.post(
         "http://localhost:8000/api/cart/add",
         {
-          productId: id
+          productId: id,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
       console.log(response.data);
 
-      getCart();
+      const pagination = await getCart(1);
 
-      if (response.data.message === "Product added to cart") {
-
-        toast.success("Product added to cart");
-
-      } else {
-
-        toast.info("Product is already in your cart");
-
+      if (pagination) {
+        setCartCount(pagination.totalItems);
       }
 
-    } catch (error) {
+      if (response.data.message === "Product added to cart") {
+        setCartModalMessage({
+          title: "Added to Cart!",
+          message: `${name} has been added to your cart.`,
+        });
+      } else {
+        setCartModalMessage({
+          title: "Already in Cart",
+          message: `${name} is already in your cart.`,
+        });
+      }
 
+      setShowCartModal(true);
+    } catch (error) {
       console.log(error);
 
       toast.error(
         error.response?.data?.message ||
-        "Failed to add product to cart"
+          "Failed to add product to cart"
       );
     }
   }
 
-
   // ================= DELETE PRODUCT =================
 
   async function handleDelete() {
-
     try {
-
       const token = localStorage.getItem("accessToken");
 
-      const response = await axios.delete(
+      const response = await api.delete(
         `http://localhost:8000/api/products/deleteProduct/${id}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -109,20 +130,17 @@ function Product({
       setShowModal(false);
 
       toast.success("Product deleted successfully");
-
     } catch (error) {
-
       console.log(error);
 
       toast.error(
         error.response?.data?.message ||
-        "Failed to delete product"
+          "Failed to delete product"
       );
     }
   }
 
-
-  // ================= ACTION CONDITIONS =================
+  // ================= PERMISSIONS =================
 
   const canManageProduct =
     role === "admin" ||
@@ -132,105 +150,218 @@ function Product({
     role === "user" ||
     (role === "seller" && !isMyProduct);
 
+  const isCardClickable =
+    role !== "admin" &&
+    !(role === "seller" && isMyProduct);
+
+  // ================= UI =================
 
   return (
     <>
+      <article
+        className={`product-card ${
+          isCardClickable ? "product-card--clickable" : ""
+        }`}
+        onClick={handleView}
+        role={isCardClickable ? "button" : undefined}
+        tabIndex={isCardClickable ? 0 : undefined}
+        onKeyDown={(event) => {
+          if (
+            isCardClickable &&
+            (event.key === "Enter" || event.key === " ")
+          ) {
+            event.preventDefault();
+            handleView();
+          }
+        }}
+      >
+        {/* ================= IMAGE ================= */}
 
-      <div className="product-card">
+        <div className="product-card__image-wrapper">
+          <img
+            className="product-card__image"
+            src={`http://localhost:8000/${image}`}
+            alt={name}
+          />
 
-
-        {/* ================= PRODUCT IMAGE ================= */}
-
-        <img
-          className="product-image"
-          src={image}
-          alt={name}
-        />
-
-
-        {/* ================= PRODUCT INFORMATION ================= */}
-
-        <div className="product-info">
-
-          <p className="product-category">
+          <span className="product-card__category">
             {category}
-          </p>
+          </span>
 
-          <h2>
-            {name}
-          </h2>
+          {role === "seller" && isMyProduct && (
+            <span className="product-card__owner-badge">
+              Your Product
+            </span>
+          )}
 
-          <p className="product-price">
-            ₹{price}
-          </p>
-
+          {role === "admin" && (
+            <span className="product-card__owner-badge">
+              Admin
+            </span>
+          )}
         </div>
 
+        {/* ================= PRODUCT INFO ================= */}
 
-        {/* ================= BUTTONS ================= */}
+        <div className="product-card__body">
+          <div className="product-card__main">
+            <h2 className="product-card__name">
+              {name}
+            </h2>
 
-        <div className="product-actions">
+            <p className="product-card__price">
+              ₹{price}
+            </p>
+          </div>
 
+          {isCardClickable && (
+            <div className="product-card__view">
+              <span>View product</span>
 
-          {/* VIEW */}
-
-          <button
-            className="view-button"
-            onClick={handleView}
-          >
-            View
-          </button>
-
-
-          {/* EDIT */}
-
-          {canManageProduct && (
-            <button
-              className="edit-button"
-              onClick={handleEdit}
-            >
-              Edit
-            </button>
+              <FaArrowRight />
+            </div>
           )}
 
+          {/* ================= ACTIONS ================= */}
 
-          {/* DELETE */}
+          <div className="product-card__actions">
+            {canManageProduct && (
+              <button
+                type="button"
+                className="product-card__action product-card__action--edit"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleEdit();
+                }}
+              >
+                <FaEdit />
 
-          {canManageProduct && (
-            <button
-              className="delete-button"
-              onClick={() => setShowModal(true)}
-            >
-              Delete
-            </button>
-          )}
+                <span>Edit</span>
+              </button>
+            )}
 
+            {canManageProduct && (
+              <button
+                type="button"
+                className="product-card__action product-card__action--delete"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setShowModal(true);
+                }}
+              >
+                <FaTrash />
 
-          {/* ADD TO CART */}
+                <span>Delete</span>
+              </button>
+            )}
 
-          {canAddToCart && (
-            <button
-              className="cart-button"
-              onClick={handleAddToCart}
-            >
-              Add to Cart
-            </button>
-          )}
+            {canAddToCart && (
+              <button
+                type="button"
+                className="product-card__action product-card__action--cart"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleAddToCart();
+                }}
+              >
+                <FaCartPlus />
 
+                <span>Add to Cart</span>
+              </button>
+            )}
+          </div>
         </div>
+      </article>
 
-      </div>
+      {/* ================= CART MODAL ================= */}
 
+      {showCartModal && (
+        <div
+          className="product-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cart-modal-title"
+        >
+          <div
+            className="product-modal__backdrop"
+            onClick={() => setShowCartModal(false)}
+          />
+
+          <div className="product-modal__content">
+            <button
+              type="button"
+              className="product-modal__close"
+              onClick={() => setShowCartModal(false)}
+              aria-label="Close"
+            >
+              <FaTimes />
+            </button>
+
+            <div className="product-modal__icon product-modal__icon--cart">
+              <FaCartPlus />
+            </div>
+
+            <h2 id="cart-modal-title">
+              {cartModalMessage.title}
+            </h2>
+
+            <p>{cartModalMessage.message}</p>
+
+            <div className="product-modal__actions">
+              <button
+                type="button"
+                className="product-modal__button product-modal__button--secondary"
+                onClick={() => setShowCartModal(false)}
+              >
+                Continue Shopping
+              </button>
+
+              <button
+                type="button"
+                className="product-modal__button product-modal__button--primary"
+                onClick={() => {
+                  setShowCartModal(false);
+                  navigate("/cart");
+                }}
+              >
+                Go to Cart
+
+                <FaArrowRight />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= DELETE MODAL ================= */}
 
       {showModal && (
+        <div
+          className="product-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
+        >
+          <div
+            className="product-modal__backdrop"
+            onClick={() => setShowModal(false)}
+          />
 
-        <div className="modal">
+          <div className="product-modal__content">
+            <button
+              type="button"
+              className="product-modal__close"
+              onClick={() => setShowModal(false)}
+              aria-label="Close"
+            >
+              <FaTimes />
+            </button>
 
-          <div className="modal-content">
+            <div className="product-modal__icon product-modal__icon--delete">
+              <FaTrash />
+            </div>
 
-            <h2>
+            <h2 id="delete-modal-title">
               Delete Product?
             </h2>
 
@@ -239,31 +370,28 @@ function Product({
               <strong>{name}</strong>?
             </p>
 
-
-            <div className="modal-actions">
-
+            <div className="product-modal__actions">
               <button
-                className="cancel-button"
+                type="button"
+                className="product-modal__button product-modal__button--secondary"
                 onClick={() => setShowModal(false)}
               >
                 Cancel
               </button>
 
               <button
-                className="confirm-delete-button"
+                type="button"
+                className="product-modal__button product-modal__button--danger"
                 onClick={handleDelete}
               >
+                <FaTrash />
+
                 Delete
               </button>
-
             </div>
-
           </div>
-
         </div>
-
       )}
-
     </>
   );
 }

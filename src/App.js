@@ -1,119 +1,84 @@
-import './App.css';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from 'react';
 
-import Home from './pages/Home';
-import AddProduct from './pages/AddProduct';
-import Products from './pages/Products';
-import EditProduct from './pages/EditProduct';
-import ProductDetails from "./pages/ProductDetails";
 
-import Navbar from './Components/Navbar';
-import Footer from './Components/Footer';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 
-import Signup from './pages/Signup';
-import Login from './pages/Login';
-import Profile from './pages/Profile';
-
-import UserDashboard from "./pages/UserDashboard";
-import SellerDashboard from "./pages/SellerDashboard";
-import AdminDashboard from './pages/AdminDashboard';
-import Cart from "./pages/Cart";
-
-import MyProducts from "./pages/MyProducts";
+import { useState } from "react";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import Home from "./pages/Home";
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
+import Products from "./pages/Products";
+import ProductDetails from "./pages/ProductDetails";
+import Profile from "./pages/Profile";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import AddProduct from "./pages/AddProduct";
+import EditProduct from "./pages/EditProduct";
+import SellerDashboard from "./pages/SellerDashboard";
+import MyProducts from "./pages/MyProducts";
+import AdminDashboard from "./pages/AdminDashboard";
 
-// =========================================================
-// PROTECTED ROUTE
-// =========================================================
+import Navbar from "./Components/Navbar";
+import Footer from "./Components/Footer";
 
+import { useAuth } from "./Context/AuthContext";
+
+
+// Protected route component
 function ProtectedRoute({ children, allowedRoles }) {
+  const { accessToken, role } = useAuth();
 
-  const accessToken = localStorage.getItem("accessToken");
-  const role = localStorage.getItem("role");
-
-
-  // User is not logged in
   if (!accessToken) {
-
     return <Navigate to="/login" replace />;
-
   }
 
-
-  // Role is not allowed
-  if (
-    allowedRoles &&
-    !allowedRoles.includes(role)
-  ) {
-
+  if (allowedRoles && !allowedRoles.includes(role)) {
     return <Navigate to="/" replace />;
-
   }
 
-
-  // Everything is okay
   return children;
 }
 
 
 function App() {
+  const [products, setProducts] = useState([]);
 
-  // Add Product
- 
-
-  // Delete Product
   function deleteProduct(name) {
-
-    setProducts(
-      products.filter(
+    setProducts((currentProducts) =>
+      currentProducts.filter(
         (product) => product.name !== name
       )
     );
-
   }
 
-
-  // Products State
-  const [products, setProducts] = useState([]);
-
-
   return (
-
     <BrowserRouter>
-
       <div className="app">
 
         <Navbar />
 
         <main className="main-content">
-
           <Routes>
 
-            {/* =================================================
-                PUBLIC ROUTES
-            ================================================= */}
-
-            {/* Home */}
+            {/* Public routes */}
 
             <Route
               path="/"
               element={<Home />}
             />
 
-
-            {/* Signup */}
-
             <Route
               path="/signup"
               element={<Signup />}
             />
-
-
-            {/* Login */}
 
             <Route
               path="/login"
@@ -121,11 +86,7 @@ function App() {
             />
 
 
-            {/* =================================================
-                AUTHENTICATED USER / SELLER / ADMIN
-            ================================================= */}
-
-            {/* Products */}
+            {/* Product routes */}
 
             <Route
               path="/products"
@@ -134,7 +95,7 @@ function App() {
                   allowedRoles={[
                     "user",
                     "seller",
-                    "admin"
+                    "admin",
                   ]}
                 >
                   <Products
@@ -145,9 +106,6 @@ function App() {
               }
             />
 
-
-            {/* Product Details */}
-
             <Route
               path="/product/:id"
               element={
@@ -155,7 +113,7 @@ function App() {
                   allowedRoles={[
                     "user",
                     "seller",
-                    "admin"
+                    "admin",
                   ]}
                 >
                   <ProductDetails
@@ -175,7 +133,7 @@ function App() {
                   allowedRoles={[
                     "user",
                     "seller",
-                    "admin"
+                    "admin",
                   ]}
                 >
                   <Profile />
@@ -183,10 +141,6 @@ function App() {
               }
             />
 
-
-            {/* =================================================
-                USER + SELLER
-            ================================================= */}
 
             {/* Cart */}
 
@@ -196,7 +150,7 @@ function App() {
                 <ProtectedRoute
                   allowedRoles={[
                     "user",
-                    "seller"
+                    "seller",
                   ]}
                 >
                   <Cart />
@@ -205,11 +159,7 @@ function App() {
             />
 
 
-            {/* =================================================
-                SELLER + ADMIN
-            ================================================= */}
-
-            {/* Add Product */}
+            {/* Add product */}
 
             <Route
               path="/add-product"
@@ -217,7 +167,7 @@ function App() {
                 <ProtectedRoute
                   allowedRoles={[
                     "seller",
-                    "admin"
+                    "admin",
                   ]}
                 >
                   <AddProduct />
@@ -226,7 +176,7 @@ function App() {
             />
 
 
-            {/* Edit Product */}
+            {/* Edit product */}
 
             <Route
               path="/edit-product/:id"
@@ -234,7 +184,7 @@ function App() {
                 <ProtectedRoute
                   allowedRoles={[
                     "seller",
-                    "admin"
+                    "admin",
                   ]}
                 >
                   <EditProduct />
@@ -243,27 +193,7 @@ function App() {
             />
 
 
-            {/* =================================================
-                USER DASHBOARD
-            ================================================= */}
-
-            <Route
-              path="/user-dashboard"
-              element={
-                <ProtectedRoute
-                  allowedRoles={["user"]}
-                >
-                  <UserDashboard />
-                </ProtectedRoute>
-              }
-            />
-
-
-            {/* =================================================
-                SELLER
-            ================================================= */}
-
-            {/* Seller Dashboard */}
+            {/* Seller dashboard */}
 
             <Route
               path="/seller-dashboard"
@@ -274,28 +204,25 @@ function App() {
                   <SellerDashboard />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route
+                path="my-products"
+                element={<MyProducts />}
+              />
+
+              <Route
+                path="add-product"
+                element={<AddProduct />}
+              />
+
+              <Route
+                path="profile"
+                element={<Profile />}
+              />
+            </Route>
 
 
-            {/* My Products */}
-
-            <Route
-              path="/my-products"
-              element={
-                <ProtectedRoute
-                  allowedRoles={["seller"]}
-                >
-                  <MyProducts />
-                </ProtectedRoute>
-              }
-            />
-
-
-            {/* =================================================
-                ADMIN
-            ================================================= */}
-
-            {/* Admin Dashboard */}
+            {/* Admin dashboard */}
 
             <Route
               path="/admin-dashboard"
@@ -308,8 +235,24 @@ function App() {
               }
             />
 
-          </Routes>
 
+            {/* Checkout */}
+
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute
+                  allowedRoles={[
+                    "user",
+                    "seller",
+                  ]}
+                >
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+
+          </Routes>
         </main>
 
         <Footer />
@@ -317,7 +260,6 @@ function App() {
       </div>
 
       <ToastContainer />
-
     </BrowserRouter>
   );
 }

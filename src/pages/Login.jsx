@@ -1,177 +1,280 @@
 import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  FaArrowRight,
+  FaCheck,
+  FaEye,
+  FaEyeSlash,
+  FaLock,
+  FaUser,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 
-const Login = () => {
+import api from "../api";
+import { useAuth } from "../Context/AuthContext";
 
+import "../Styles/Login.css";
+
+const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+    general: "",
+  });
+
   const [isLoading, setIsLoading] = useState(false);
 
+  // ================= HANDLE CHANGE =================
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
 
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value,
     });
 
+    setErrors({
+      ...errors,
+      [name]: "",
+      general: "",
+    });
   };
 
+  // ================= EMAIL VALIDATION =================
+
+  const validateEmail = (value) => {
+    if (!value.trim()) {
+      return "Email is required";
+    }
+
+    const emailPattern =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(value)) {
+      return "Please enter a valid email";
+    }
+
+    return "";
+  };
+
+  // ================= PASSWORD VALIDATION =================
+
+  const validatePassword = (value) => {
+    if (!value.trim()) {
+      return "Password is required";
+    }
+
+    return "";
+  };
+
+  // ================= FORM VALIDATION =================
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    const emailError = validateEmail(formData.email);
+    const passwordError = validatePassword(formData.password);
+
+    if (emailError) {
+      newErrors.email = emailError;
+    }
+
+    if (passwordError) {
+      newErrors.password = passwordError;
+    }
+
+    setErrors({
+      email: newErrors.email || "",
+      password: newErrors.password || "",
+      general: "",
+    });
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // ================= SUBMIT =================
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
-    setError("");
+    const isValid = validateForm();
+
+    if (!isValid) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-
-      const response = await axios.post(
+      const response = await api.post(
         "http://localhost:8000/api/auth/login",
         formData
       );
 
-      console.log("LOGIN RESPONSE:", response.data);
-      console.log("ROLE:", response.data.data.role);
-
-
-      // Save login information
-
-      localStorage.setItem(
-        "accessToken",
-        response.data.accessToken
+      console.log(
+        "LOGIN RESPONSE:",
+        response.data
       );
 
-      localStorage.setItem(
-        "role",
+      console.log(
+        "ROLE:",
         response.data.data.role
       );
 
-      localStorage.setItem(
-        "firstName",
-        response.data.data.firstName
-      );
+      const loginData = {
+        accessToken: response.data.accessToken,
 
-      localStorage.setItem(
-        "lastName",
-        response.data.data.lastName
-      );
+        role: response.data.data.role,
 
-      localStorage.setItem(
-        "email",
-        response.data.data.email
-      );
+        firstName: response.data.data.firstName,
 
+        lastName: response.data.data.lastName,
 
-      // Show success toast
+        email: response.data.data.email,
+      };
+
+      login(loginData);
 
       toast.success("Login successful! 👋");
 
+      const role = response.data.data.role;
 
-      // Go to Home without reloading the application
-
-      navigate("/");
-
+      if (role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (role === "seller") {
+        navigate("/seller-dashboard");
+      } else {
+        navigate("/products");
+      }
     } catch (error) {
-
       console.log(error);
 
       const errorMessage =
         error.response?.data?.message ||
         "Invalid email or password";
 
-
-      // Show error inside form
-
-      setError(errorMessage);
-
-
-      // Show error toast
+      setErrors({
+        email: "",
+        password: "",
+        general: errorMessage,
+      });
 
       toast.error(errorMessage);
-
     } finally {
-
       setIsLoading(false);
-
     }
-
   };
 
-
   return (
-    <div className="auth-page">
+    <main className="login-page">
+      <div className="login-page__background-glow login-page__background-glow--one" />
+      <div className="login-page__background-glow login-page__background-glow--two" />
 
-      <div className="auth-layout">
+      <div className="login-container">
 
-        {/* Left side */}
+        {/* ================= BRAND SIDE ================= */}
 
-        <div className="auth-brand-panel">
+        <section className="login-brand">
 
-          <div className="auth-brand-content">
+          <div className="login-brand__content">
 
-            <div className="auth-brand-logo">
-              ProductHub
+            <Link
+              to="/"
+              className="login-brand__logo"
+            >
+              <span className="login-brand__logo-mark">
+                P
+              </span>
+
+              <span>
+                Product<span>Hub</span>
+              </span>
+            </Link>
+
+            <div className="login-brand__text">
+
+              <span className="login-brand__eyebrow">
+                PRODUCT PLATFORM
+              </span>
+
+              <h1>
+                Everything you need,
+                <br />
+                <span>in one place.</span>
+              </h1>
+
+              <p>
+                Discover products, manage your store,
+                and enjoy a simple shopping experience
+                built around you.
+              </p>
+
             </div>
 
-            <p className="auth-brand-label">
-              PRODUCT PLATFORM
-            </p>
+            <div className="login-brand__points">
 
-            <h1>
-              Everything you need,
-              <br />
-              in one place.
-            </h1>
+              <div className="login-brand__point">
+                <span className="login-brand__point-icon">
+                  <FaCheck />
+                </span>
 
-            <p>
-              Discover products, manage your store and
-              enjoy a simple shopping experience.
-            </p>
+                <span>
+                  Simple product discovery
+                </span>
+              </div>
 
-            <div className="auth-points">
+              <div className="login-brand__point">
+                <span className="login-brand__point-icon">
+                  <FaCheck />
+                </span>
 
-              <span>
-                ✓ Simple product discovery
-              </span>
+                <span>
+                  Seller-friendly management
+                </span>
+              </div>
 
-              <span>
-                ✓ Seller-friendly management
-              </span>
+              <div className="login-brand__point">
+                <span className="login-brand__point-icon">
+                  <FaCheck />
+                </span>
 
-              <span>
-                ✓ Secure account access
-              </span>
+                <span>
+                  Secure account access
+                </span>
+              </div>
 
             </div>
 
           </div>
 
-        </div>
+        </section>
 
+        {/* ================= LOGIN FORM ================= */}
 
-        {/* Right side */}
+        <section className="login-form-section">
 
-        <div className="auth-form-section">
+          <div className="login-form-card">
 
-          <div className="auth-form-container">
+            <div className="login-form-header">
 
-            <div className="auth-header">
+              <div className="login-form-header__icon">
+                <FaUser />
+              </div>
 
-              <p className="section-label">
+              <span className="login-form-header__eyebrow">
                 WELCOME BACK
-              </p>
+              </span>
 
               <h2>
                 Sign in to ProductHub
@@ -183,43 +286,69 @@ const Login = () => {
 
             </div>
 
-
             <form
-              className="auth-form"
+              className="login-form"
               onSubmit={handleSubmit}
             >
 
-              {/* Email */}
+              {/* EMAIL */}
 
-              <div className="auth-form-group">
+              <div className="login-field">
 
-                <label>
+                <label htmlFor="email">
                   Email address
                 </label>
 
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="you@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
+                <div
+                  className={`login-input-wrapper ${
+                    errors.email
+                      ? "login-input-wrapper--error"
+                      : ""
+                  }`}
+                >
+
+                  <FaUser className="login-input-icon" />
+
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    autoComplete="email"
+                  />
+
+                </div>
+
+                {errors.email && (
+                  <p className="login-field-error">
+                    {errors.email}
+                  </p>
+                )}
 
               </div>
 
+              {/* PASSWORD */}
 
-              {/* Password */}
+              <div className="login-field">
 
-              <div className="auth-form-group">
-
-                <label>
+                <label htmlFor="password">
                   Password
                 </label>
 
-                <div className="password-input-wrapper">
+                <div
+                  className={`login-input-wrapper ${
+                    errors.password
+                      ? "login-input-wrapper--error"
+                      : ""
+                  }`}
+                >
+
+                  <FaLock className="login-input-icon" />
 
                   <input
+                    id="password"
                     type={
                       showPassword
                         ? "text"
@@ -229,69 +358,94 @@ const Login = () => {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
-                    required
+                    autoComplete="current-password"
                   />
 
                   <button
                     type="button"
-                    className="password-toggle"
+                    className="login-password-toggle"
                     onClick={() =>
-                      setShowPassword(!showPassword)
+                      setShowPassword(
+                        !showPassword
+                      )
+                    }
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
                     }
                   >
-                    {showPassword
-                      ? "Hide"
-                      : "Show"}
+                    {showPassword ? (
+                      <FaEyeSlash />
+                    ) : (
+                      <FaEye />
+                    )}
                   </button>
 
                 </div>
 
+                {errors.password && (
+                  <p className="login-field-error">
+                    {errors.password}
+                  </p>
+                )}
+
               </div>
 
+              {/* GENERAL ERROR */}
 
-              {/* Error */}
-
-              {error && (
-                <div className="auth-error">
-                  {error}
+              {errors.general && (
+                <div className="login-general-error">
+                  <span>!</span>
+                  <p>{errors.general}</p>
                 </div>
               )}
 
-
-              {/* Submit */}
+              {/* SUBMIT */}
 
               <button
                 type="submit"
-                className="auth-submit-button"
+                className="login-submit"
                 disabled={isLoading}
               >
-                {isLoading
-                  ? "Signing in..."
-                  : "Sign in"}
+
+                {isLoading ? (
+                  <>
+                    <span className="login-submit__spinner" />
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    Sign in
+                    <FaArrowRight />
+                  </>
+                )}
+
               </button>
 
             </form>
 
+            {/* SIGNUP */}
 
-            <p className="auth-switch">
+            <div className="login-signup">
 
-              Don't have an account?
+              <span>
+                Don't have an account?
+              </span>
 
-              {" "}
-
-              <a href="/signup">
+              <Link to="/signup">
                 Create one
-              </a>
+                <FaArrowRight />
+              </Link>
 
-            </p>
+            </div>
 
           </div>
 
-        </div>
+        </section>
 
       </div>
-
-    </div>
+    </main>
   );
 };
 
