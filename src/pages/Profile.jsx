@@ -4,6 +4,7 @@ import {
   FaCheck,
   FaEdit,
   FaEnvelope,
+  FaFileAlt,
   FaIdBadge,
   FaSave,
   FaTimes,
@@ -22,7 +23,7 @@ function Profile() {
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
 
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -66,7 +67,7 @@ function Profile() {
   function handleEdit() {
     setFirstName(profile.firstName || "");
     setLastName(profile.lastName || "");
-    setEmail(profile.email || "");
+    setBio(profile.bio || "");
 
     setSelectedImage(null);
 
@@ -122,8 +123,8 @@ function Profile() {
       return;
     }
 
-    if (!email.trim()) {
-      toast.error("Email is required");
+    if (bio.length > 300) {
+      toast.error("Bio must be 300 characters or less");
       return;
     }
 
@@ -145,8 +146,8 @@ function Profile() {
       );
 
       formData.append(
-        "email",
-        email.trim()
+        "bio",
+        bio.trim()
       );
 
       if (selectedImage) {
@@ -184,11 +185,6 @@ function Profile() {
       localStorage.setItem(
         "lastName",
         updatedProfile.lastName
-      );
-
-      localStorage.setItem(
-        "email",
-        updatedProfile.email
       );
 
       setIsEditing(false);
@@ -255,6 +251,7 @@ function Profile() {
     return (
       <main className="ph-profile-page">
         <div className="ph-profile-background-glow ph-profile-background-glow-one" />
+
         <div className="ph-profile-background-glow ph-profile-background-glow-two" />
 
         <div className="ph-profile-container">
@@ -363,6 +360,14 @@ function Profile() {
                   </strong>
                 </div>
 
+                <div className="ph-profile-detail ph-profile-detail-full">
+                  <span>Bio</span>
+
+                  <strong>
+                    {profile.bio || "No bio added yet."}
+                  </strong>
+                </div>
+
                 <div className="ph-profile-detail">
                   <span>Account Type</span>
 
@@ -390,6 +395,7 @@ function Profile() {
   return (
     <main className="ph-profile-page">
       <div className="ph-profile-background-glow ph-profile-background-glow-one" />
+
       <div className="ph-profile-background-glow ph-profile-background-glow-two" />
 
       <div className="ph-profile-container">
@@ -401,7 +407,7 @@ function Profile() {
           <h1>Edit Profile</h1>
 
           <p>
-            Update your ProductHub account information.
+            Update your personal profile information.
           </p>
         </header>
 
@@ -477,7 +483,7 @@ function Profile() {
                   PERSONAL INFORMATION
                 </span>
 
-                <h3>Update account details</h3>
+                <h3>Update your profile</h3>
               </div>
             </div>
 
@@ -523,43 +529,27 @@ function Profile() {
               </div>
 
               <div className="ph-profile-form-group ph-profile-form-group-full">
-                <label htmlFor="ph-email">
-                  Email Address
+                <label htmlFor="ph-bio">
+                  Bio
                 </label>
 
-                <div className="ph-profile-input-wrapper">
-                  <FaEnvelope />
+                <div className="ph-profile-input-wrapper ph-profile-textarea-wrapper">
+                  <FaFileAlt />
 
-                  <input
-                    id="ph-email"
-                    type="email"
-                    value={email}
+                  <textarea
+                    id="ph-bio"
+                    value={bio}
                     onChange={(event) =>
-                      setEmail(event.target.value)
+                      setBio(event.target.value)
                     }
-                    placeholder="Enter email address"
-                  />
-                </div>
-              </div>
-
-              <div className="ph-profile-form-group ph-profile-form-group-full">
-                <label>
-                  Account Type
-                </label>
-
-                <div className="ph-profile-input-wrapper ph-profile-input-disabled">
-                  <FaIdBadge />
-
-                  <input
-                    type="text"
-                    value={profile.role}
-                    disabled
+                    placeholder="Tell something about yourself..."
+                    maxLength={300}
+                    rows={5}
                   />
                 </div>
 
                 <small>
-                  Account type cannot be changed
-                  from your profile.
+                  {bio.length}/300 characters
                 </small>
               </div>
             </div>

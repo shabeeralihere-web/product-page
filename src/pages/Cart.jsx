@@ -2,6 +2,7 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from "react";
 
 import { useNavigate } from "react-router-dom";
@@ -10,23 +11,26 @@ import { toast } from "react-toastify";
 import CartContext from "../Context/CartContext";
 
 import {
+  FaArrowLeft,
   FaMinus,
   FaPlus,
-  FaTrash,
+  FaShoppingBag,
   FaShoppingCart,
-  FaCreditCard,
-  FaExclamationTriangle,
-  FaArrowLeft,
-  FaArrowRight,
+  FaTrash,
   FaBoxOpen,
+  FaArrowRight,
 } from "react-icons/fa";
 
 import "../Styles/Cart.css";
 
 function Cart() {
+  const navigate = useNavigate();
+
   const {
     cartItems,
+    cartCount,
     getCart,
+    getAllCartItems,
     updateCartQuantity,
     removeCartItem,
     clearCart,
@@ -34,8 +38,10 @@ function Cart() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] =
+    useState(false);
 
   const [showRemoveModal, setShowRemoveModal] =
     useState(false);
@@ -43,52 +49,48 @@ function Cart() {
   const [showClearModal, setShowClearModal] =
     useState(false);
 
-  const [showCheckoutModal, setShowCheckoutModal] =
-    useState(false);
-
-  const [selectedCheckoutItem, setSelectedCheckoutItem] =
-    useState(null);
-
   const [selectedCartId, setSelectedCartId] =
     useState(null);
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const loadCart = async () => {
+  const loadCart = useCallback(
+    async (page) => {
       try {
         setIsLoading(true);
 
-        const pagination = await getCart(currentPage);
+        const response = await getCart(page);
 
-        if (pagination) {
+        if (response?.pagination) {
           setTotalPages(
-            pagination.totalPages
+            response.pagination.totalPages || 1
           );
-
-          setTotalItems(
-            pagination.totalItems
-          );
+        } else {
+          setTotalPages(1);
         }
       } catch (error) {
-        console.log(error);
+        console.log("LOAD CART ERROR:", error);
       } finally {
         setIsLoading(false);
       }
-    };
+    },
+    [getCart]
+  );
 
-    loadCart();
+  useEffect(() => {
+    loadCart(currentPage);
+  }, [currentPage, loadCart]);
 
-    // getCart is recreated by CartContext.
-    // Current behavior is intentionally preserved.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
 
-  const updateQuantity = async (
+  const handleQuantityChange = async (
     cartId,
-    newQuantity,
-    productName
+    currentQuantity,
+    change
   ) => {
+    const newQuantity =
+      currentQuantity + change;
+
     if (newQuantity < 1) {
       return;
     }
@@ -98,28 +100,23 @@ function Cart() {
         cartId,
         newQuantity
       );
-
-      toast.success(
-        `${productName} quantity updated to ${newQuantity}`,
-        {
-          autoClose: 1200,
-        }
-      );
     } catch (error) {
-      console.log(error);
-
       toast.error(
-        "Failed to update quantity"
+        "Unable to update quantity"
       );
     }
   };
 
-  const openRemoveModal = (cartId) => {
+  const handleRemoveClick = (cartId) => {
     setSelectedCartId(cartId);
     setShowRemoveModal(true);
   };
 
-  const removeFromCart = async () => {
+  const confirmRemove = async () => {
+    if (!selectedCartId) {
+      return;
+    }
+
     try {
       await removeCartItem(
         selectedCartId
@@ -128,146 +125,155 @@ function Cart() {
       setShowRemoveModal(false);
       setSelectedCartId(null);
 
-      toast.success(
-        "Product removed from cart"
-      );
-
-      const pagination =
-        await getCart(currentPage);
-
-      if (pagination) {
-        setTotalPages(
-          pagination.totalPages
+      if (
+        cartItems.length === 1 &&
+        currentPage > 1
+      ) {
+        setCurrentPage(
+          (previousPage) =>
+            previousPage - 1
         );
-
-        setTotalItems(
-          pagination.totalItems
-        );
-
-        if (
-          currentPage > pagination.totalPages &&
-          pagination.totalPages > 0
-        ) {
-          setCurrentPage(
-            pagination.totalPages
-          );
-        }
+      } else {
+        await loadCart(currentPage);
       }
     } catch (error) {
-      console.log(error);
-
       toast.error(
-        "Failed to remove product"
+        "Unable to remove product"
       );
     }
   };
 
-  const handleClearCart = async () => {
+  const confirmClearCart = async () => {
     try {
       await clearCart();
 
       setShowClearModal(false);
       setCurrentPage(1);
       setTotalPages(1);
-      setTotalItems(0);
-
-      toast.success(
-        "Cart cleared successfully"
-      );
     } catch (error) {
-      console.log(error);
+      toast.error(
+        "Unable to clear cart"
+      );
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      setIsCheckingOut(true);
+
+      const allItems =
+        await getAllCartItems();
+
+      console.log(
+        "ALL CART ITEMS:",
+        allItems
+      );
+
+      if (!allItems.length) {
+        toast.error(
+          "Your cart is empty"
+        );
+        return;
+      }
+
+      navigate("/checkout", {
+        state: {
+          cartItems: allItems,
+        },
+      });
+    } catch (error) {
+      console.log(
+        "CHECKOUT ERROR:",
+        error
+      );
 
       toast.error(
-        "Failed to clear cart"
+        "Unable to continue to checkout"
       );
+    } finally {
+      setIsCheckingOut(false);
     }
   };
 
-  const handleCheckout = (cartItem) => {
-    setSelectedCheckoutItem(cartItem);
-    setShowCheckoutModal(true);
+  const handleContinueShopping = () => {
+    navigate("/products");
   };
 
-  const continueToCheckout = () => {
-    if (!selectedCheckoutItem) {
-      return;
-    }
-
-    setShowCheckoutModal(false);
-
-    navigate("/checkout", {
-      state: {
-        cartId:
-          selectedCheckoutItem._id,
-
-        product:
-          selectedCheckoutItem.productId,
-
-        quantity:
-          selectedCheckoutItem.quantity,
-      },
-    });
-
-    setSelectedCheckoutItem(null);
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
-  const handlePrevious = () => {
+  const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(
-        currentPage - 1
+        (previousPage) =>
+          previousPage - 1
       );
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
     }
   };
 
-  const handleNext = () => {
+  const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(
-        currentPage + 1
+        (previousPage) =>
+          previousPage + 1
       );
-
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
     }
   };
 
-  if (isLoading) {
+  if (
+    isLoading &&
+    cartItems.length === 0 &&
+    cartCount === 0
+  ) {
     return (
       <main className="ph-cart-page">
-        <div className="ph-cart-loading">
+        <div className="ph-cart-container">
+          <div className="ph-cart-loading">
+            <div className="ph-cart-loading-spinner"></div>
 
-          <div className="ph-cart-loading-spinner">
-            <div />
+            <p>
+              Loading your cart...
+            </p>
           </div>
+        </div>
+      </main>
+    );
+  }
 
-          <span>
-            SHOPPING CART
-          </span>
+  if (
+    !isLoading &&
+    cartItems.length === 0 &&
+    cartCount === 0
+  ) {
+    return (
+      <main className="ph-cart-page">
+        <div className="ph-cart-container">
+          <section className="ph-cart-empty">
+            <div className="ph-cart-empty-icon">
+              <FaShoppingCart />
+            </div>
 
-          <h2>
-            Loading your cart...
-          </h2>
+            <span className="ph-cart-empty-eyebrow">
+              YOUR CART
+            </span>
 
-          <p>
-            Please wait while we load your
-            shopping cart.
-          </p>
+            <h1>
+              Your cart is empty
+            </h1>
 
+            <p>
+              Looks like you haven't
+              added anything to your
+              cart yet.
+            </p>
+
+            <button
+              className="ph-cart-empty-button"
+              onClick={
+                handleContinueShopping
+              }
+            >
+              <FaShoppingBag />
+              Continue Shopping
+            </button>
+          </section>
         </div>
       </main>
     );
@@ -275,421 +281,414 @@ function Cart() {
 
   return (
     <main className="ph-cart-page">
-
       <div className="ph-cart-container">
-
-        {/* HEADER */}
-
         <header className="ph-cart-header">
+          <button
+            className="ph-cart-back-button"
+            onClick={
+              handleContinueShopping
+            }
+          >
+            <FaArrowLeft />
+            Continue Shopping
+          </button>
 
-          <div className="ph-cart-heading">
-
-            <button
-              type="button"
-              className="ph-cart-back-button"
-              onClick={() =>
-                navigate("/products")
-              }
-            >
-              <FaArrowLeft />
-
-              <span>
-                Continue Shopping
-              </span>
-            </button>
-
-            <div className="ph-cart-title-row">
-
-              <div className="ph-cart-title-icon">
-                <FaShoppingCart />
-              </div>
-
-              <div>
-
-                <span className="ph-cart-eyebrow">
-                  SHOPPING CART
-                </span>
-
-                <h1>
-                  My Cart
-                </h1>
-
-                <p>
-                  Review and manage the products
-                  you've added to your cart.
-                </p>
-
-              </div>
-
+          <div className="ph-cart-title-row">
+            <div className="ph-cart-title-icon">
+              <FaShoppingCart />
             </div>
 
-          </div>
-
-          {totalItems > 0 && (
-            <div className="ph-cart-header-actions">
-
-              <span className="ph-cart-item-count">
-                {totalItems}{" "}
-                {totalItems === 1
-                  ? "product"
-                  : "products"}
+            <div>
+              <span className="ph-cart-eyebrow">
+                YOUR SHOPPING BAG
               </span>
 
+              <h1 className="ph-cart-title">
+                Shopping Cart
+              </h1>
+
+              <p className="ph-cart-subtitle">
+                Review your products
+                before proceeding to
+                checkout.
+              </p>
+            </div>
+          </div>
+
+          <div className="ph-cart-header-actions">
+            <span className="ph-cart-item-count">
+              {cartCount}{" "}
+              {cartCount === 1
+                ? "Item"
+                : "Items"}
+            </span>
+
+            {cartCount > 0 && (
               <button
-                type="button"
                 className="ph-cart-clear-button"
                 onClick={() =>
                   setShowClearModal(true)
                 }
               >
                 <FaTrash />
-
-                <span>
-                  Clear Cart
-                </span>
+                Clear Cart
               </button>
-
-            </div>
-          )}
-
+            )}
+          </div>
         </header>
 
+        <section className="ph-cart-summary">
+          <div className="ph-cart-summary-item">
+            <div className="ph-cart-summary-icon">
+              <FaBoxOpen />
+            </div>
 
-        {/* EMPTY CART */}
+            <div>
+              <span>
+                Total Products
+              </span>
 
-        {totalItems === 0 ? (
+              <strong>
+                {cartCount}
+              </strong>
+            </div>
+          </div>
 
-          <section className="ph-cart-empty">
+          <div className="ph-cart-summary-item">
+            <div className="ph-cart-summary-icon">
+              <FaShoppingBag />
+            </div>
 
-            <div className="ph-cart-empty-icon">
+            <div>
+              <span>
+                Current Page
+              </span>
+
+              <strong>
+                {currentPage} /{" "}
+                {totalPages}
+              </strong>
+            </div>
+          </div>
+
+          <div className="ph-cart-summary-item">
+            <div className="ph-cart-summary-icon">
               <FaShoppingCart />
             </div>
 
-            <span className="ph-cart-eyebrow">
-              YOUR CART
-            </span>
-
-            <h2>
-              Your Cart is Empty
-            </h2>
-
-            <p>
-              Looks like you haven't added
-              anything to your cart yet.
-            </p>
-
-            <button
-              type="button"
-              className="ph-cart-empty-button"
-              onClick={() =>
-                navigate("/products")
-              }
-            >
-              <FaShoppingCart />
-
-              Continue Shopping
-            </button>
-
-          </section>
-
-        ) : (
-
-          <>
-
-            {/* CART SUMMARY */}
-
-            <section className="ph-cart-summary">
-
-              <div className="ph-cart-summary-item">
-
-                <div className="ph-cart-summary-icon">
-                  <FaBoxOpen />
-                </div>
-
-                <div>
-
-                  <span>
-                    CART ITEMS
-                  </span>
-
-                  <strong>
-                    {totalItems}
-                  </strong>
-
-                </div>
-
-              </div>
-
-              {totalPages > 1 && (
-                <span className="ph-cart-page-status">
-                  Page {currentPage} of{" "}
-                  {totalPages}
-                </span>
-              )}
-
-            </section>
-
-
-            {/* CART PRODUCTS */}
-
-            <section className="ph-cart-grid">
-
-              {cartItems.map((item) => {
-
-                if (!item.productId) {
-                  return null;
-                }
-
-                const product =
-                  item.productId;
-
-                const itemTotal =
-                  Number(product.price) *
-                  Number(item.quantity);
-
-                return (
-                  <article
-                    className="ph-cart-card"
-                    key={item._id}
-                  >
-
-                    {/* IMAGE */}
-
-                    <div className="ph-cart-image-wrapper">
-
-                      <img
-                        src={`http://localhost:8000/${product.image}`}
-                        alt={product.name}
-                        className="ph-cart-image"
-                      />
-
-                    </div>
-
-
-                    {/* CONTENT */}
-
-                    <div className="ph-cart-card-content">
-
-                      <span className="ph-cart-category">
-                        {product.category}
-                      </span>
-
-                      <h2 className="ph-cart-product-name">
-                        {product.name}
-                      </h2>
-
-                      <p className="ph-cart-product-price">
-                        ₹{product.price}
-                      </p>
-
-
-                      {/* QUANTITY */}
-
-                      <div className="ph-cart-quantity-row">
-
-                        <span>
-                          Quantity
-                        </span>
-
-                        <div className="ph-cart-quantity-control">
-
-                          <button
-                            type="button"
-                            className="ph-cart-quantity-button"
-                            onClick={() =>
-                              updateQuantity(
-                                item._id,
-                                item.quantity - 1,
-                                product.name
-                              )
-                            }
-                            disabled={
-                              item.quantity === 1
-                            }
-                            aria-label="Decrease quantity"
-                          >
-                            <FaMinus />
-                          </button>
-
-                          <span className="ph-cart-quantity-value">
-                            {item.quantity}
-                          </span>
-
-                          <button
-                            type="button"
-                            className="ph-cart-quantity-button"
-                            onClick={() =>
-                              updateQuantity(
-                                item._id,
-                                item.quantity + 1,
-                                product.name
-                              )
-                            }
-                            aria-label="Increase quantity"
-                          >
-                            <FaPlus />
-                          </button>
-
-                        </div>
-
-                      </div>
-
-
-                      {/* TOTAL */}
-
-                      <div className="ph-cart-total-row">
-
-                        <span>
-                          Item Total
-                        </span>
-
-                        <strong>
-                          ₹{itemTotal}
-                        </strong>
-
-                      </div>
-
-
-                      {/* ACTIONS */}
-
-                      <div className="ph-cart-actions">
-
-                        <button
-                          type="button"
-                          className="ph-cart-checkout-button"
-                          onClick={() =>
-                            handleCheckout(item)
-                          }
-                        >
-                          <FaCreditCard />
-
-                          <span>
-                            Checkout
-                          </span>
-
-                        </button>
-
-                        <button
-                          type="button"
-                          className="ph-cart-remove-button"
-                          onClick={() =>
-                            openRemoveModal(
-                              item._id
-                            )
-                          }
-                        >
-                          <FaTrash />
-
-                          <span>
-                            Remove
-                          </span>
-
-                        </button>
-
-                      </div>
-
-                    </div>
-
-                  </article>
-                );
-              })}
-
-            </section>
-
-
-            {/* PAGINATION */}
-
-            {totalPages > 1 && (
-              <nav
-                className="ph-cart-pagination"
-                aria-label="Cart pagination"
-              >
-
-                <button
-                  type="button"
-                  className="ph-cart-pagination-button ph-cart-pagination-arrow"
-                  onClick={handlePrevious}
-                  disabled={
-                    currentPage === 1
-                  }
-                >
-                  <FaArrowLeft />
-
-                  <span>
-                    Previous
-                  </span>
-                </button>
-
-                <div className="ph-cart-page-numbers">
-
-                  {Array.from(
-                    {
-                      length: totalPages,
-                    },
-                    (_, index) =>
-                      index + 1
-                  ).map((page) => (
-
-                    <button
-                      type="button"
-                      key={page}
-                      className={`ph-cart-page-number ${
-                        currentPage === page
-                          ? "ph-cart-page-number--active"
-                          : ""
-                      }`}
-                      onClick={() =>
-                        handlePageChange(
-                          page
-                        )
-                      }
-                      aria-current={
-                        currentPage === page
-                          ? "page"
-                          : undefined
-                      }
-                    >
-                      {page}
-                    </button>
-
-                  ))}
-
-                </div>
-
-                <button
-                  type="button"
-                  className="ph-cart-pagination-button ph-cart-pagination-arrow"
-                  onClick={handleNext}
-                  disabled={
-                    currentPage ===
-                    totalPages
-                  }
-                >
-                  <span>
-                    Next
-                  </span>
-
-                  <FaArrowRight />
-                </button>
-
-              </nav>
-            )}
-
-          </>
+            <div>
+              <span>
+                Checkout
+              </span>
+
+              <strong>
+                {cartCount > 0
+                  ? "Ready"
+                  : "Empty"}
+              </strong>
+            </div>
+          </div>
+        </section>
+
+        {isLoading && (
+          <div className="ph-cart-page-status">
+            <div className="ph-cart-small-spinner"></div>
+            Updating your cart...
+          </div>
         )}
 
+        <section className="ph-cart-grid">
+          {cartItems.map((item) => {
+            const product =
+              item.productId;
+
+            if (!product) {
+              return null;
+            }
+
+            const productImage =
+              product.image
+                ? `http://localhost:8000/${product.image.replace(
+                    /\\/g,
+                    "/"
+                  )}`
+                : "";
+
+            const itemTotal =
+              Number(
+                product.price || 0
+              ) *
+              Number(
+                item.quantity || 1
+              );
+
+            return (
+              <article
+                className="ph-cart-card"
+                key={item._id}
+                onClick={() =>
+                  handleProductClick(
+                    product._id
+                  )
+                }
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (
+                    event.key ===
+                      "Enter" ||
+                    event.key === " "
+                  ) {
+                    handleProductClick(
+                      product._id
+                    );
+                  }
+                }}
+              >
+                <div className="ph-cart-image-wrapper">
+                  {productImage ? (
+                    <img
+                      src={productImage}
+                      alt={product.name}
+                      className="ph-cart-image"
+                    />
+                  ) : (
+                    <div className="ph-cart-image-placeholder">
+                      <FaShoppingBag />
+                    </div>
+                  )}
+
+                  <div className="ph-cart-image-overlay">
+                    View Product
+                  </div>
+                </div>
+
+                <div className="ph-cart-card-content">
+                  <span className="ph-cart-category">
+                    {product.category ||
+                      "Product"}
+                  </span>
+
+                  <h2 className="ph-cart-product-name">
+                    {product.name}
+                  </h2>
+
+                  <p className="ph-cart-product-price">
+                    ₹
+                    {Number(
+                      product.price || 0
+                    ).toFixed(2)}
+                  </p>
+
+                  <div
+                    className="ph-cart-quantity-row"
+                    onClick={(event) =>
+                      event.stopPropagation()
+                    }
+                  >
+                    <span>
+                      Quantity
+                    </span>
+
+                    <div className="ph-cart-quantity-control">
+                      <button
+                        className="ph-cart-quantity-button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+
+                          handleQuantityChange(
+                            item._id,
+                            item.quantity,
+                            -1
+                          );
+                        }}
+                        disabled={
+                          item.quantity <=
+                          1
+                        }
+                        aria-label="Decrease quantity"
+                      >
+                        <FaMinus />
+                      </button>
+
+                      <span className="ph-cart-quantity-value">
+                        {item.quantity}
+                      </span>
+
+                      <button
+                        className="ph-cart-quantity-button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+
+                          handleQuantityChange(
+                            item._id,
+                            item.quantity,
+                            1
+                          );
+                        }}
+                        aria-label="Increase quantity"
+                      >
+                        <FaPlus />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="ph-cart-total-row">
+                    <span>
+                      Item Total
+                    </span>
+
+                    <strong>
+                      ₹
+                      {itemTotal.toFixed(
+                        2
+                      )}
+                    </strong>
+                  </div>
+
+                  <div
+                    className="ph-cart-actions"
+                    onClick={(event) =>
+                      event.stopPropagation()
+                    }
+                  >
+                    <button
+                      className="ph-cart-remove-button"
+                      onClick={() =>
+                        handleRemoveClick(
+                          item._id
+                        )
+                      }
+                    >
+                      <FaTrash />
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+
+        {totalPages > 1 && (
+          <div className="ph-cart-pagination">
+            <button
+              className="ph-cart-pagination-button"
+              onClick={
+                handlePreviousPage
+              }
+              disabled={
+                currentPage === 1
+              }
+            >
+              Previous
+            </button>
+
+            <div className="ph-cart-page-numbers">
+              {Array.from(
+                {
+                  length: totalPages,
+                },
+                (_, index) =>
+                  index + 1
+              ).map((page) => (
+                <button
+                  key={page}
+                  className={`ph-cart-page-number ${
+                    currentPage === page
+                      ? "ph-cart-page-number--active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setCurrentPage(page)
+                  }
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              className="ph-cart-pagination-button"
+              onClick={
+                handleNextPage
+              }
+              disabled={
+                currentPage ===
+                totalPages
+              }
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        <section className="ph-cart-checkout-section">
+          <div className="ph-cart-checkout-content">
+            <div className="ph-cart-checkout-icon">
+              <FaShoppingBag />
+            </div>
+
+            <div>
+              <span className="ph-cart-checkout-eyebrow">
+                READY TO ORDER?
+              </span>
+
+              <h2>
+                Complete your purchase
+              </h2>
+
+              <p>
+                {cartCount}{" "}
+                {cartCount === 1
+                  ? "product"
+                  : "products"}{" "}
+                will be included in
+                your checkout.
+              </p>
+            </div>
+          </div>
+
+          <button
+            className="ph-cart-checkout-main-button"
+            onClick={
+              handleCheckout
+            }
+            disabled={
+              isCheckingOut ||
+              cartCount === 0
+            }
+          >
+            <span>
+              {isCheckingOut
+                ? "Preparing Checkout..."
+                : "Proceed to Checkout"}
+            </span>
+
+            {!isCheckingOut && (
+              <FaArrowRight />
+            )}
+          </button>
+        </section>
       </div>
 
-
-      {/* REMOVE MODAL */}
-
       {showRemoveModal && (
-        <div className="ph-cart-modal-overlay">
-
-          <div className="ph-cart-modal">
-
+        <div
+          className="ph-cart-modal-overlay"
+          onClick={() =>
+            setShowRemoveModal(
+              false
+            )
+          }
+        >
+          <div
+            className="ph-cart-modal"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
             <div className="ph-cart-modal-icon">
-              <FaExclamationTriangle />
+              <FaTrash />
             </div>
 
             <h2>
@@ -697,235 +696,89 @@ function Cart() {
             </h2>
 
             <p>
-              Are you sure you want to remove
-              this product from your cart?
+              Are you sure you want
+              to remove this product
+              from your cart?
             </p>
 
             <div className="ph-cart-modal-actions">
-
               <button
-                type="button"
-                className="ph-cart-modal-cancel"
-                onClick={() => {
-                  setShowRemoveModal(false);
-                  setSelectedCartId(null);
-                }}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                className="ph-cart-modal-danger"
-                onClick={removeFromCart}
-              >
-                <FaTrash />
-                Remove
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-      )}
-
-
-      {/* CLEAR CART MODAL */}
-
-      {showClearModal && (
-        <div className="ph-cart-modal-overlay">
-
-          <div className="ph-cart-modal">
-
-            <div className="ph-cart-modal-icon">
-              <FaExclamationTriangle />
-            </div>
-
-            <h2>
-              Clear Your Cart?
-            </h2>
-
-            <p>
-              This will remove all products from
-              your cart. This action cannot be
-              undone.
-            </p>
-
-            <div className="ph-cart-modal-actions">
-
-              <button
-                type="button"
                 className="ph-cart-modal-cancel"
                 onClick={() =>
-                  setShowClearModal(false)
+                  setShowRemoveModal(
+                    false
+                  )
                 }
               >
                 Cancel
               </button>
 
               <button
-                type="button"
-                className="ph-cart-modal-danger"
-                onClick={handleClearCart}
+                className="ph-cart-modal-confirm"
+                onClick={
+                  confirmRemove
+                }
               >
-                <FaTrash />
-                Clear Cart
+                Remove
               </button>
-
             </div>
-
           </div>
-
         </div>
       )}
 
-
-      {/* CHECKOUT MODAL */}
-
-      {showCheckoutModal &&
-        selectedCheckoutItem && (
-
-          <div className="ph-cart-modal-overlay">
-
-            <div className="ph-cart-checkout-modal">
-
-              <div className="ph-cart-checkout-icon">
-                <FaCreditCard />
-              </div>
-
-              <span className="ph-cart-eyebrow">
-                ORDER
-              </span>
-
-              <h2>
-                Ready to Checkout?
-              </h2>
-
-              <p className="ph-cart-checkout-message">
-                Do you want to continue with
-                this purchase?
-              </p>
-
-
-              {/* PRODUCT PREVIEW */}
-
-              <div className="ph-cart-checkout-preview">
-
-                <div className="ph-cart-checkout-image-wrapper">
-
-                  <img
-                    src={`http://localhost:8000/${selectedCheckoutItem.productId.image}`}
-                    alt={
-                      selectedCheckoutItem
-                        .productId
-                        .name
-                    }
-                    className="ph-cart-checkout-image"
-                  />
-
-                </div>
-
-                <div className="ph-cart-checkout-product-info">
-
-                  <h3>
-                    {
-                      selectedCheckoutItem
-                        .productId
-                        .name
-                    }
-                  </h3>
-
-                  <span>
-                    {
-                      selectedCheckoutItem
-                        .productId
-                        .category
-                    }
-                  </span>
-
-                  <p>
-                    ₹
-                    {
-                      selectedCheckoutItem
-                        .productId
-                        .price
-                    }
-                    {" × "}
-                    {
-                      selectedCheckoutItem
-                        .quantity
-                    }
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              {/* TOTAL */}
-
-              <div className="ph-cart-checkout-total">
-
-                <span>
-                  Total
-                </span>
-
-                <strong>
-                  ₹
-                  {Number(
-                    selectedCheckoutItem
-                      .productId
-                      .price
-                  ) *
-                    Number(
-                      selectedCheckoutItem
-                        .quantity
-                    )}
-                </strong>
-
-              </div>
-
-
-              {/* ACTIONS */}
-
-              <div className="ph-cart-modal-actions">
-
-                <button
-                  type="button"
-                  className="ph-cart-modal-cancel"
-                  onClick={() => {
-                    setShowCheckoutModal(
-                      false
-                    );
-
-                    setSelectedCheckoutItem(
-                      null
-                    );
-                  }}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="button"
-                  className="ph-cart-checkout-confirm"
-                  onClick={
-                    continueToCheckout
-                  }
-                >
-                  <FaCreditCard />
-
-                  Continue to Checkout
-                </button>
-
-              </div>
-
+      {showClearModal && (
+        <div
+          className="ph-cart-modal-overlay"
+          onClick={() =>
+            setShowClearModal(
+              false
+            )
+          }
+        >
+          <div
+            className="ph-cart-modal"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+            <div className="ph-cart-modal-icon">
+              <FaTrash />
             </div>
 
-          </div>
-        )}
+            <h2>
+              Clear Cart?
+            </h2>
 
+            <p>
+              This will remove all
+              products from your
+              shopping cart.
+            </p>
+
+            <div className="ph-cart-modal-actions">
+              <button
+                className="ph-cart-modal-cancel"
+                onClick={() =>
+                  setShowClearModal(
+                    false
+                  )
+                }
+              >
+                Cancel
+              </button>
+
+              <button
+                className="ph-cart-modal-confirm"
+                onClick={
+                  confirmClearCart
+                }
+              >
+                Clear Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

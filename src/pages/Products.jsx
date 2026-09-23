@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FaSearch } from "react-icons/fa";
 import api from "../api";
 import Product from "../Components/Product";
 import "../Styles/Products.css";
@@ -8,6 +9,7 @@ function Products() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const getProducts = async () => {
@@ -17,7 +19,9 @@ function Products() {
         const token = localStorage.getItem("accessToken");
 
         const response = await api.get(
-          `http://localhost:8000/api/products/getProducts?page=${currentPage}&limit=6`,
+          `http://localhost:8000/api/products/getProducts?search=${encodeURIComponent(
+            search
+          )}&page=${currentPage}&limit=6`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -25,10 +29,7 @@ function Products() {
           }
         );
 
-        console.log(response.data);
-
         setProducts(response.data.data);
-
         setTotalPages(response.data.pagination.totalPages);
       } catch (error) {
         console.log(error);
@@ -38,12 +39,17 @@ function Products() {
     };
 
     getProducts();
-  }, [currentPage]);
+  }, [currentPage, search]);
 
   function handleProductDeleted(id) {
     setProducts((previousProducts) =>
       previousProducts.filter((product) => product._id !== id)
     );
+  }
+
+  function handleSearchChange(event) {
+    setSearch(event.target.value);
+    setCurrentPage(1);
   }
 
   function handlePageChange(page) {
@@ -80,7 +86,6 @@ function Products() {
   return (
     <main className="products-page">
       <div className="products-page__container">
-
         <section className="products-page__header">
           <div className="products-page__heading">
             <span className="products-page__eyebrow">
@@ -104,6 +109,18 @@ function Products() {
         </section>
 
         <section className="products-page__content">
+          <section className="products-page__search">
+            <FaSearch className="products-page__search-icon" />
+
+            <input
+              type="text"
+              value={search}
+              onChange={handleSearchChange}
+              placeholder="Search products by name or category..."
+              className="products-page__search-input"
+            />
+          </section>
+
           {loading ? (
             <div className="products-page__loading">
               <div className="products-page__loader" />
@@ -117,17 +134,21 @@ function Products() {
           ) : products.length === 0 ? (
             <div className="products-page__empty">
               <div className="products-page__empty-icon">
-                <span>+</span>
+                <FaSearch />
               </div>
 
               <span className="products-page__eyebrow">
-                MARKETPLACE
+                {search ? "SEARCH" : "MARKETPLACE"}
               </span>
 
-              <h2>No Products Yet</h2>
+              <h2>
+                {search ? "No Products Found" : "No Products Yet"}
+              </h2>
 
               <p>
-                There are currently no products available on ProductHub.
+                {search
+                  ? `No products matched "${search}". Try searching with another name or category.`
+                  : "There are currently no products available on ProductHub."}
               </p>
             </div>
           ) : (
@@ -139,7 +160,9 @@ function Products() {
                   </span>
 
                   <p>
-                    Showing products from the marketplace
+                    {search
+                      ? `Search results for "${search}"`
+                      : "Showing products from the marketplace"}
                   </p>
                 </div>
 

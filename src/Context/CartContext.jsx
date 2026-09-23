@@ -11,54 +11,61 @@ import { useAuth } from "./AuthContext";
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-
-  // ============================================
-  // AUTH
-  // ============================================
-
   const { accessToken } = useAuth();
 
-
-  // ============================================
-  // CART ITEMS
-  // ============================================
-
-  // Products currently loaded on the current page
   const [cartItems, setCartItems] = useState([]);
-
-  // Total number of products in the cart
-  // Used by Navbar
   const [cartCount, setCartCount] = useState(0);
 
-
-  // ============================================
-  // GET CART
-  // ============================================
-
-  const getCart = useCallback(async (page = 1) => {
-
-    try {
-
-      // --------------------------------------------
-      // If user is not logged in
-      // --------------------------------------------
-
+  const getCart = useCallback(
+    async (page = 1) => {
       if (!accessToken) {
+        setCartItems([]);
+        setCartCount(0);
+        return null;
+      }
+
+      try {
+        const response = await api.get(
+          `http://localhost:8000/api/cart/?page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        const responseData = response.data;
+
+        const items = responseData.data || [];
+
+        const totalItems =
+          responseData.pagination?.totalItems ??
+          items.length;
+
+        setCartItems(items);
+        setCartCount(totalItems);
+
+        return responseData;
+      } catch (error) {
+        console.log("GET CART ERROR:", error);
 
         setCartItems([]);
-
         setCartCount(0);
 
         return null;
       }
+    },
+    [accessToken]
+  );
 
+  const getAllCartItems = useCallback(async () => {
+    if (!accessToken) {
+      return [];
+    }
 
-      // --------------------------------------------
-      // Get cart from backend
-      // --------------------------------------------
-
-      const response = await api.get(
-        `http://localhost:8000/api/cart/?page=${page}`,
+    try {
+      const firstResponse = await api.get(
+        "http://localhost:8000/api/cart/?page=1",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -66,81 +73,57 @@ export const CartProvider = ({ children }) => {
         }
       );
 
+      const firstData = firstResponse.data;
 
-      console.log(
-        "CART RESPONSE:",
-        response.data
-      );
+      let allItems = firstData.data || [];
 
+      const totalPages =
+        firstData.pagination?.totalPages || 1;
 
-      // --------------------------------------------
-      // Store current page products
-      // --------------------------------------------
+      for (let page = 2; page <= totalPages; page++) {
+        const response = await api.get(
+          `http://localhost:8000/api/cart/?page=${page}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
-      setCartItems(
-        response.data.data
-      );
+        const pageItems = response.data.data || [];
 
+        allItems = [
+          ...allItems,
+          ...pageItems,
+        ];
+      }
 
-      // --------------------------------------------
-      // Store total cart count
-      // --------------------------------------------
-
-      setCartCount(
-        response.data.pagination?.totalItems || 0
-      );
-
-
-      // --------------------------------------------
-      // Return pagination information
-      // to Cart.jsx
-      // --------------------------------------------
-
-      return response.data.pagination;
-
-
+      return allItems;
     } catch (error) {
-
       console.log(
-        "GET CART ERROR:",
+        "GET ALL CART ITEMS ERROR:",
         error
       );
 
-
-      setCartItems([]);
-
-      setCartCount(0);
-
-      return null;
+      return [];
     }
-
   }, [accessToken]);
-
-
-  // ============================================
-  // UPDATE CART QUANTITY
-  // ============================================
 
   const updateCartQuantity = async (
     cartId,
     newQuantity
   ) => {
-
     if (newQuantity < 1) {
       return;
     }
 
-
     try {
-
       await api.put(
         "http://localhost:8000/api/cart/update",
-
         {
-          cartId: cartId,
+          cartId,
           quantity: newQuantity,
         },
-
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -148,106 +131,61 @@ export const CartProvider = ({ children }) => {
         }
       );
 
-
-      // --------------------------------------------
-      // Update frontend immediately
-      // --------------------------------------------
-
-      setCartItems(
-        (previousItems) =>
-          previousItems.map(
-            (item) =>
-              item._id === cartId
-                ? {
-                    ...item,
-                    quantity: newQuantity,
-                  }
-                : item
-          )
+      setCartItems((previousItems) =>
+        previousItems.map((item) =>
+          item._id === cartId
+            ? {
+                ...item,
+                quantity: newQuantity,
+              }
+            : item
+        )
       );
-
-
     } catch (error) {
-
       console.log(
         "UPDATE CART ERROR:",
         error
       );
 
+      throw error;
     }
   };
 
-
-  // ============================================
-  // REMOVE CART ITEM
-  // ============================================
-
-  const removeCartItem = async (
-    cartId
-  ) => {
-
+  const removeCartItem = async (cartId) => {
     try {
-
       await api.delete(
         "http://localhost:8000/api/cart/remove",
-
         {
           data: {
-            cartId: cartId,
+            cartId,
           },
-
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
 
-
-      // --------------------------------------------
-      // Remove from current page
-      // --------------------------------------------
-
-      setCartItems(
-        (previousItems) =>
-          previousItems.filter(
-            (item) =>
-              item._id !== cartId
-          )
+      setCartItems((previousItems) =>
+        previousItems.filter(
+          (item) => item._id !== cartId
+        )
       );
 
-
-      // --------------------------------------------
-      // Decrease Navbar count
-      // --------------------------------------------
-
-      setCartCount(
-        (previousCount) =>
-          Math.max(
-            previousCount - 1,
-            0
-          )
+      setCartCount((previousCount) =>
+        Math.max(previousCount - 1, 0)
       );
-
-
     } catch (error) {
-
       console.log(
         "REMOVE CART ERROR:",
         error
       );
 
+      throw error;
     }
   };
 
-
-  // ============================================
-  // CLEAR CART
-  // ============================================
-
   const clearCart = async () => {
-
     try {
-
       await api.delete(
         "http://localhost:8000/api/cart/clear",
         {
@@ -257,89 +195,44 @@ export const CartProvider = ({ children }) => {
         }
       );
 
-
-      // --------------------------------------------
-      // Clear frontend cart
-      // --------------------------------------------
-
       setCartItems([]);
-
-      // Reset Navbar count
       setCartCount(0);
-
-
     } catch (error) {
-
       console.log(
         "CLEAR CART ERROR:",
         error
       );
 
+      throw error;
     }
   };
 
-
-  // ============================================
-  // LOAD CART WHEN LOGIN STATE CHANGES
-  // ============================================
-
   useEffect(() => {
-
     if (accessToken) {
-
-      // User logged in
-      // Load their existing cart
-
-      getCart();
-
+      getCart(1);
     } else {
-
-      // User logged out
-      // Clear cart information
-
       setCartItems([]);
-
       setCartCount(0);
-
     }
-
   }, [accessToken, getCart]);
 
-
-  // ============================================
-  // CONTEXT PROVIDER
-  // ============================================
-
   return (
-
     <CartContext.Provider
       value={{
-
-        // Current page cart items
         cartItems,
-
-        // Total cart item count
         cartCount,
-
-        // State setters
         setCartItems,
         setCartCount,
-
-        // Cart functions
         getCart,
+        getAllCartItems,
         updateCartQuantity,
         removeCartItem,
         clearCart,
-
       }}
     >
-
       {children}
-
     </CartContext.Provider>
-
   );
 };
-
 
 export default CartContext;

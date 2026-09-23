@@ -1,5 +1,3 @@
-
-
 import {
   BrowserRouter,
   Navigate,
@@ -25,14 +23,14 @@ import EditProduct from "./pages/EditProduct";
 import SellerDashboard from "./pages/SellerDashboard";
 import MyProducts from "./pages/MyProducts";
 import AdminDashboard from "./pages/AdminDashboard";
+import Unauthorized from "./pages/Unauthorized";
+import NotFound from "./pages/NotFound";
 
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 
 import { useAuth } from "./Context/AuthContext";
 
-
-// Protected route component
 function ProtectedRoute({ children, allowedRoles }) {
   const { accessToken, role } = useAuth();
 
@@ -41,12 +39,11 @@ function ProtectedRoute({ children, allowedRoles }) {
   }
 
   if (allowedRoles && !allowedRoles.includes(role)) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;
 }
-
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -68,8 +65,6 @@ function App() {
         <main className="main-content">
           <Routes>
 
-            {/* Public routes */}
-
             <Route
               path="/"
               element={<Home />}
@@ -84,9 +79,6 @@ function App() {
               path="/login"
               element={<Login />}
             />
-
-
-            {/* Product routes */}
 
             <Route
               path="/products"
@@ -123,9 +115,6 @@ function App() {
               }
             />
 
-
-            {/* Profile */}
-
             <Route
               path="/profile"
               element={
@@ -141,9 +130,6 @@ function App() {
               }
             />
 
-
-            {/* Cart */}
-
             <Route
               path="/cart"
               element={
@@ -157,9 +143,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-
-            {/* Add product */}
 
             <Route
               path="/add-product"
@@ -175,9 +158,6 @@ function App() {
               }
             />
 
-
-            {/* Edit product */}
-
             <Route
               path="/edit-product/:id"
               element={
@@ -191,9 +171,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-
-            {/* Seller dashboard */}
 
             <Route
               path="/seller-dashboard"
@@ -221,9 +198,6 @@ function App() {
               />
             </Route>
 
-
-            {/* Admin dashboard */}
-
             <Route
               path="/admin-dashboard"
               element={
@@ -234,9 +208,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-
-            {/* Checkout */}
 
             <Route
               path="/checkout"
@@ -250,6 +221,16 @@ function App() {
                   <Checkout />
                 </ProtectedRoute>
               }
+            />
+
+            <Route
+              path="/unauthorized"
+              element={<Unauthorized />}
+            />
+
+            <Route
+              path="*"
+              element={<NotFound />}
             />
 
           </Routes>

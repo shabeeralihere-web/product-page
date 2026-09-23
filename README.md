@@ -1,70 +1,219 @@
-# Getting Started with Create React App
+# ProductHub Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+ProductHub is a MERN stack e-commerce application frontend built with React.js.
 
-## Available Scripts
+The application provides authentication, role-based access, product management, product browsing, cart management, checkout, profile management, and admin/seller features.
 
-In the project directory, you can run:
+## Tech Stack
 
-### `npm start`
+- React.js
+- JavaScript
+- React Router
+- Axios
+- React Bootstrap
+- React Icons
+- React Toastify
+- CSS
+- Context API
+- JWT Authentication
+- LocalStorage
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Authentication
 
-### `npm test`
+- User registration
+- User login
+- JWT-based authentication
+- Logout
+- Protected routes
+- Role-based access control
+- Authentication state management
+- Login and signup validation
+- Persistent login using LocalStorage
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### User Roles
 
-### `npm run build`
+ProductHub supports three user roles:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- User
+- Seller
+- Admin
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Each role has different permissions and access to different pages.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### User Features
 
-### `npm run eject`
+Users can:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- View products
+- Search products
+- View product details
+- Add products to cart
+- Update cart quantity
+- Remove products from cart
+- Clear cart
+- Checkout
+- Place orders
+- View profile
+- Update profile
+- Upload profile image
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Seller Features
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Sellers can:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- View available products
+- Add products
+- View their own products
+- Edit their products
+- Delete their products
+- Manage their products
+- Manage cart
+- Checkout
+- Manage profile
 
-## Learn More
+### Admin Features
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Admins can:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- View products
+- Add products
+- Edit products
+- Delete products
+- Access admin dashboard
+- Manage users
+- Manage profile
 
-### Code Splitting
+## Product Features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- Product listing
+- Product details
+- Product search
+- Product pagination
+- Product categories
+- Product image upload
+- Add product
+- Edit product
+- Delete product
+- Seller-specific product management
+- Role-based product permissions
 
-### Analyzing the Bundle Size
+## Cart Features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- Add product to cart
+- View cart
+- Increase product quantity
+- Decrease product quantity
+- Remove product from cart
+- Clear cart
+- Display cart item count
+- Navigate from cart item to product details
 
-### Making a Progressive Web App
+## Checkout Features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- Product checkout
+- Delivery address form
+- Full name validation
+- Phone number validation
+- Address validation
+- City and state fields
+- PIN code validation
+- Payment method selection
+- Order creation
 
-### Advanced Configuration
+## Profile Features
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+- View user profile
+- Edit first name
+- Edit last name
+- Edit bio
+- Upload profile image
+- Display user role
+- Display account information
 
-### Deployment
+## API Integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+The frontend communicates with the ProductHub backend using Axios.
 
-### `npm run build` fails to minify
+The backend provides APIs for:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Authentication
+- Users
+- Products
+- Cart
+- Orders
+- Profile
+
+The frontend sends JWT tokens with protected API requests.
+
+Example:
+
+```text
+Authorization: Bearer <accessToken>
+
+
+## Project Structure
+
+productpage/
+│
+├── build/
+│
+├── public/
+│   ├── index.html
+│   └── ProductHub.png
+│
+├── src/
+│   │
+│   ├── Components/
+│   │   ├── Footer.jsx
+│   │   ├── Navbar.jsx
+│   │   └── Product.jsx
+│   │
+│   ├── pages/
+│   │   ├── AddProduct.jsx
+│   │   ├── AdminDashboard.jsx
+│   │   ├── Checkout.jsx
+│   │   ├── EditProduct.jsx
+│   │   ├── Home.jsx
+│   │   ├── Login.jsx
+│   │   ├── MyProducts.jsx
+│   │   ├── NotFound.jsx
+│   │   ├── ProductDetails.jsx
+│   │   ├── Products.jsx
+│   │   ├── Profile.jsx
+│   │   ├── SellerDashboard.jsx
+│   │   ├── Signup.jsx
+│   │   └── Unauthorized.jsx
+│   │
+│   ├── Styles/
+│   │   ├── AddProduct.css
+│   │   ├── AdminDashboard.css
+│   │   ├── animations.css
+│   │   ├── Cart.css
+│   │   ├── Checkout.css
+│   │   ├── EditProduct.css
+│   │   ├── Footer.css
+│   │   ├── global.css
+│   │   ├── Home.css
+│   │   ├── Login.css
+│   │   ├── MyProducts.css
+│   │   ├── Navbar.css
+│   │   ├── NotFound.css
+│   │   ├── Profile.css
+│   │   ├── Signup.css
+│   │   ├── Unauthorized.css
+│   │   └── variables.css
+│   │
+│   ├── uploads/
+│   │
+│   ├── api.js
+│   ├── App.js
+│   └── index.js
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── package-lock.json
+├── package.json
+└── README.md

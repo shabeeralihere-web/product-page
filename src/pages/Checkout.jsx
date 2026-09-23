@@ -1,8 +1,18 @@
-import React, { useContext, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import { toast } from "react-toastify";
 
 import CartContext from "../Context/CartContext";
+
 import api from "../api";
 
 import {
@@ -11,6 +21,8 @@ import {
   FaCreditCard,
   FaMapMarkerAlt,
   FaShoppingBag,
+  FaTrash,
+  
 } from "react-icons/fa";
 
 import "../Styles/Checkout.css";
@@ -19,10 +31,14 @@ function Checkout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { removeCartItem } = useContext(CartContext);
+  const {
+    removeCartItem,
+  } = useContext(CartContext);
 
-  const { cartId, product, quantity } =
-    location.state || {};
+  const [checkoutItems, setCheckoutItems] =
+    useState(
+      location.state?.cartItems || []
+    );
 
   const [address, setAddress] = useState({
     fullName: "",
@@ -44,46 +60,51 @@ function Checkout() {
 
   const [errors, setErrors] = useState({});
 
-  if (!cartId || !product) {
-    return (
-      <main className="ph-checkout-page">
-        <div className="ph-checkout-container">
-          <section className="ph-checkout-not-found">
+  useEffect(() => {
+    const items =
+      location.state?.cartItems || [];
 
-            <div className="ph-checkout-not-found-icon">
-              !
-            </div>
+    setCheckoutItems(items);
+  }, [location.state]);
 
-            <span className="ph-checkout-eyebrow">
-              CHECKOUT
-            </span>
-
-            <h1>
-              Checkout Information Not Found
-            </h1>
-
-            <p>
-              Please select a product from your cart
-              before going to checkout.
-            </p>
-
-            <button
-              type="button"
-              className="ph-checkout-primary-button"
-              onClick={() => navigate("/cart")}
-            >
-              <FaArrowLeft />
-              Go to Cart
-            </button>
-
-          </section>
-        </div>
-      </main>
+  const getProductPrice = (item) => {
+    return Number(
+      item?.productId?.price || 0
     );
-  }
+  };
+
+  const getItemTotal = (item) => {
+    const price = getProductPrice(item);
+
+    const quantity = Number(
+      item?.quantity || 1
+    );
+
+    return price * quantity;
+  };
+
+  const getGrandTotal = () => {
+    return checkoutItems.reduce(
+      (total, item) =>
+        total + getItemTotal(item),
+      0
+    );
+  };
+
+  const getTotalQuantity = () => {
+    return checkoutItems.reduce(
+      (total, item) =>
+        total +
+        Number(item?.quantity || 1),
+      0
+    );
+  };
 
   const handleAddressChange = (event) => {
-    const { name, value } = event.target;
+    const {
+      name,
+      value,
+    } = event.target;
 
     setAddress((previousAddress) => ({
       ...previousAddress,
@@ -92,24 +113,57 @@ function Checkout() {
 
     setErrors((previousErrors) => ({
       ...previousErrors,
-      [`deliveryAddress.${name}`]: "",
+      [`deliveryAddress.${name}`]:
+        "",
     }));
   };
 
-  const productPrice = Number(product.price);
+  const removeFromSummary = async (
+    cartId
+  ) => {
+    if (checkoutItems.length === 1) {
+      toast.info(
+        "At least one product is required for checkout"
+      );
 
-  const itemTotal =
-    productPrice * Number(quantity);
+      return;
+    }
 
-  const deliveryCharge = 0;
+    try {
+      await removeCartItem(cartId);
 
-  const grandTotal =
-    itemTotal + deliveryCharge;
+      setCheckoutItems((previousItems) =>
+        previousItems.filter(
+          (item) => item._id !== cartId
+        )
+      );
 
-  const handleConfirmOrder = async (event) => {
+      toast.success(
+        "Product removed from order summary"
+      );
+    } catch (error) {
+      toast.error(
+        "Failed to remove product"
+      );
+    }
+  };
+
+  const handleConfirmOrder = async (
+    event
+  ) => {
     event.preventDefault();
 
     if (isConfirming) {
+      return;
+    }
+
+    if (!checkoutItems.length) {
+      toast.info(
+        "No products available for checkout"
+      );
+
+      navigate("/cart");
+
       return;
     }
 
@@ -119,27 +173,37 @@ function Checkout() {
       setIsConfirming(true);
 
       const token =
-        localStorage.getItem("accessToken");
+        localStorage.getItem(
+          "accessToken"
+        );
 
-      await api.post(
-        "http://localhost:8000/api/orders/create",
-        {
-          productId: product._id,
-          productName: product.name,
-          productImage: product.image,
-          price: product.price,
-          quantity: quantity,
-          deliveryAddress: address,
-          paymentMethod: paymentMethod,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      for (const item of checkoutItems) {
+        const product =
+          item.productId;
+
+        await api.post(
+          "http://localhost:8000/api/orders/create",
+          {
+            productId: product._id,
+            productName: product.name,
+            productImage: product.image,
+            price: product.price,
+            quantity: item.quantity,
+            deliveryAddress: address,
+            paymentMethod:
+              paymentMethod,
           },
-        }
-      );
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
 
-      await removeCartItem(cartId);
+      for (const item of checkoutItems) {
+        await removeCartItem(item._id);
+      }
 
       setOrderConfirmed(true);
 
@@ -149,13 +213,15 @@ function Checkout() {
     } catch (error) {
       console.log(error);
 
-      if (error.response?.data?.errors) {
+      if (
+        error.response?.data?.errors
+      ) {
         setErrors(
           error.response.data.errors
         );
 
         toast.error(
-          "Please fix the validation errors"
+          "Please fill required fields"
         );
       } else {
         toast.error(
@@ -168,12 +234,54 @@ function Checkout() {
     }
   };
 
+  if (
+    !checkoutItems.length &&
+    !orderConfirmed
+  ) {
+    return (
+      <main className="ph-checkout-page">
+        <div className="ph-checkout-container">
+          <section className="ph-checkout-not-found">
+            <div className="ph-checkout-not-found-icon">
+              !
+            </div>
+
+            <span className="ph-checkout-eyebrow">
+              CHECKOUT
+            </span>
+
+            <h1>
+              No Products Selected
+            </h1>
+
+            <p>
+              Your checkout does not contain
+              any products.
+            </p>
+
+            <button
+              type="button"
+              className="ph-checkout-primary-button"
+              onClick={() =>
+                navigate("/cart")
+              }
+            >
+              <FaArrowLeft />
+              Go to Cart
+            </button>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   if (orderConfirmed) {
+    const grandTotal =
+      getGrandTotal();
+
     return (
       <main className="ph-checkout-success-page">
-
         <section className="ph-checkout-success-card">
-
           <div className="ph-checkout-success-icon">
             <FaCheck />
           </div>
@@ -187,33 +295,37 @@ function Checkout() {
           </h1>
 
           <p className="ph-checkout-success-message">
-            Your order has been placed successfully.
+            Your order has been placed
+            successfully.
           </p>
 
           <div className="ph-checkout-success-product">
             <span>
-              {product.name}
+              {checkoutItems.length}{" "}
+              {checkoutItems.length === 1
+                ? "product"
+                : "products"}
             </span>
 
             <strong>
-              × {quantity}
+              × {getTotalQuantity()}
             </strong>
           </div>
 
           <div className="ph-checkout-success-total">
-
             <span>
               Order Total
             </span>
 
             <strong>
-              ₹{grandTotal}
+              ₹
+              {grandTotal.toLocaleString(
+                "en-IN"
+              )}
             </strong>
-
           </div>
 
           <div className="ph-checkout-success-actions">
-
             <button
               type="button"
               className="ph-checkout-primary-button"
@@ -234,45 +346,40 @@ function Checkout() {
             >
               View Cart
             </button>
-
           </div>
-
         </section>
-
       </main>
     );
   }
 
+  const grandTotal =
+    getGrandTotal();
+
   return (
     <main className="ph-checkout-page">
-
       <div className="ph-checkout-container">
-
-        {/* HEADER */}
-
         <header className="ph-checkout-header">
-
           <button
             type="button"
             className="ph-checkout-back-link"
             onClick={() =>
               navigate("/cart")
             }
+            disabled={isConfirming}
           >
             <FaArrowLeft />
+
             <span>
               Back to Cart
             </span>
           </button>
 
           <div className="ph-checkout-heading">
-
             <div className="ph-checkout-heading-icon">
               <FaCreditCard />
             </div>
 
             <div>
-
               <span className="ph-checkout-eyebrow">
                 CHECKOUT
               </span>
@@ -282,35 +389,20 @@ function Checkout() {
               </h1>
 
               <p>
-                Review your product and provide
-                your delivery details.
+                Review your products and
+                provide your delivery details.
               </p>
-
             </div>
-
           </div>
-
         </header>
-
-
-        {/* CHECKOUT FORM */}
 
         <form
           className="ph-checkout-layout"
           onSubmit={handleConfirmOrder}
         >
-
-          {/* LEFT SIDE */}
-
           <div className="ph-checkout-main">
-
-
-            {/* DELIVERY ADDRESS */}
-
             <section className="ph-checkout-section">
-
               <div className="ph-checkout-section-header">
-
                 <div className="ph-checkout-step">
                   1
                 </div>
@@ -325,20 +417,14 @@ function Checkout() {
                   </h2>
 
                   <p>
-                    Where should we deliver your
-                    order?
+                    Where should we deliver
+                    your order?
                   </p>
                 </div>
-
               </div>
 
-
               <div className="ph-checkout-form-grid">
-
-                {/* FULL NAME */}
-
                 <div className="ph-checkout-form-group ph-checkout-form-group--full">
-
                   <label htmlFor="checkout-fullName">
                     Full Name
                   </label>
@@ -367,14 +453,9 @@ function Checkout() {
                       }
                     </p>
                   )}
-
                 </div>
 
-
-                {/* PHONE */}
-
                 <div className="ph-checkout-form-group ph-checkout-form-group--full">
-
                   <label htmlFor="checkout-phone">
                     Phone Number
                   </label>
@@ -403,14 +484,9 @@ function Checkout() {
                       }
                     </p>
                   )}
-
                 </div>
 
-
-                {/* ADDRESS */}
-
                 <div className="ph-checkout-form-group ph-checkout-form-group--full">
-
                   <label htmlFor="checkout-address">
                     Address
                   </label>
@@ -439,14 +515,9 @@ function Checkout() {
                       }
                     </p>
                   )}
-
                 </div>
 
-
-                {/* CITY */}
-
                 <div className="ph-checkout-form-group">
-
                   <label htmlFor="checkout-city">
                     City
                   </label>
@@ -475,14 +546,9 @@ function Checkout() {
                       }
                     </p>
                   )}
-
                 </div>
 
-
-                {/* STATE */}
-
                 <div className="ph-checkout-form-group">
-
                   <label htmlFor="checkout-state">
                     State
                   </label>
@@ -511,14 +577,9 @@ function Checkout() {
                       }
                     </p>
                   )}
-
                 </div>
 
-
-                {/* PIN CODE */}
-
                 <div className="ph-checkout-form-group ph-checkout-form-group--full">
-
                   <label htmlFor="checkout-pinCode">
                     PIN Code
                   </label>
@@ -547,26 +608,17 @@ function Checkout() {
                       }
                     </p>
                   )}
-
                 </div>
-
               </div>
-
             </section>
 
-
-            {/* PAYMENT */}
-
             <section className="ph-checkout-section">
-
               <div className="ph-checkout-section-header">
-
                 <div className="ph-checkout-step">
                   2
                 </div>
 
                 <div>
-
                   <span className="ph-checkout-section-label">
                     PAYMENT
                   </span>
@@ -576,16 +628,11 @@ function Checkout() {
                   </h2>
 
                   <p>
-                    Select your preferred payment
-                    method.
+                    Select your preferred
+                    payment method.
                   </p>
-
                 </div>
-
               </div>
-
-
-              {/* COD */}
 
               <label
                 className={`ph-checkout-payment-option ${
@@ -594,7 +641,6 @@ function Checkout() {
                     : ""
                 }`}
               >
-
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -619,14 +665,11 @@ function Checkout() {
                   </strong>
 
                   <p>
-                    Pay when your order arrives.
+                    Pay when your order
+                    arrives.
                   </p>
                 </div>
-
               </label>
-
-
-              {/* UPI */}
 
               <label
                 className={`ph-checkout-payment-option ${
@@ -635,7 +678,6 @@ function Checkout() {
                     : ""
                 }`}
               >
-
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -663,11 +705,7 @@ function Checkout() {
                     Pay using a UPI app.
                   </p>
                 </div>
-
               </label>
-
-
-              {/* CARD */}
 
               <label
                 className={`ph-checkout-payment-option ${
@@ -676,7 +714,6 @@ function Checkout() {
                     : ""
                 }`}
               >
-
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -704,20 +741,16 @@ function Checkout() {
                     Pay using your card.
                   </p>
                 </div>
-
               </label>
-
-
-              {/* NET BANKING */}
 
               <label
                 className={`ph-checkout-payment-option ${
-                  paymentMethod === "netbanking"
+                  paymentMethod ===
+                  "netbanking"
                     ? "ph-checkout-payment-option--selected"
                     : ""
                 }`}
               >
-
                 <input
                   type="radio"
                   name="paymentMethod"
@@ -743,25 +776,17 @@ function Checkout() {
                   </strong>
 
                   <p>
-                    Pay using your bank account.
+                    Pay using your bank
+                    account.
                   </p>
                 </div>
-
               </label>
-
             </section>
-
           </div>
 
-
-          {/* RIGHT SIDE */}
-
           <aside className="ph-checkout-sidebar">
-
             <section className="ph-checkout-summary">
-
               <div className="ph-checkout-summary-header">
-
                 <div>
                   <span className="ph-checkout-section-label">
                     YOUR ORDER
@@ -773,56 +798,121 @@ function Checkout() {
                 </div>
 
                 <span className="ph-checkout-product-count">
-                  1 Product
+                  {checkoutItems.length}{" "}
+                  {checkoutItems.length === 1
+                    ? "Product"
+                    : "Products"}
                 </span>
-
               </div>
 
+              <div className="ph-checkout-product-list">
+                {checkoutItems.map(
+                  (item) => {
+                    const product =
+                      item.productId;
 
-              {/* PRODUCT */}
+                    if (!product) {
+                      return null;
+                    }
 
-              <div className="ph-checkout-product">
+                    return (
+                      <div
+                        className="ph-checkout-product"
+                        key={item._id}
+                      >
+                        <div className="ph-checkout-product-image">
+                          <img
+                            src={
+                              product.image?.startsWith(
+                                "http"
+                              )
+                                ? product.image
+                                : `http://localhost:8000/${product.image}`
+                            }
+                            alt={
+                              product.name
+                            }
+                          />
+                        </div>
 
-                <div className="ph-checkout-product-image">
+                        <div className="ph-checkout-product-info">
+                          <span>
+                            {
+                              product.category
+                            }
+                          </span>
 
-                  <img
-                    src={`http://localhost:8000/${product.image}`}
-                    alt={product.name}
-                  />
+                          <h3>
+                            {
+                              product.name
+                            }
+                          </h3>
 
-                </div>
+                          <p>
+                            ₹
+                            {Number(
+                              product.price
+                            ).toLocaleString(
+                              "en-IN"
+                            )}{" "}
+                            ×{" "}
+                            {
+                              item.quantity
+                            }
+                          </p>
 
-                <div className="ph-checkout-product-info">
+                          <strong>
+                            ₹
+                            {getItemTotal(
+                              item
+                            ).toLocaleString(
+                              "en-IN"
+                            )}
+                          </strong>
+                        </div>
 
-                  <span>
-                    {product.category}
-                  </span>
-
-                  <h3>
-                    {product.name}
-                  </h3>
-
-                  <p>
-                    ₹{product.price} ×{" "}
-                    {quantity}
-                  </p>
-
-                </div>
-
+                        <button
+                          type="button"
+                          className="ph-checkout-product-remove"
+                          onClick={() =>
+                            removeFromSummary(
+                              item._id
+                            )
+                          }
+                          disabled={
+                            isConfirming
+                          }
+                          title="Remove product"
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    );
+                  }
+                )}
               </div>
-
-
-              {/* PRICE DETAILS */}
 
               <div className="ph-checkout-price-details">
+                <div>
+                  <span>
+                    Products
+                  </span>
+
+                  <span>
+                    {getTotalQuantity()}
+                  </span>
+                </div>
 
                 <div>
                   <span>
-                    Product Total
+                    Subtotal
                   </span>
 
                   <span>
-                    ₹{itemTotal}
+                    ₹
+                    {grandTotal.toLocaleString(
+                      "en-IN"
+                    )}
                   </span>
                 </div>
 
@@ -837,35 +927,28 @@ function Checkout() {
                 </div>
 
                 <div className="ph-checkout-grand-total">
-
                   <strong>
                     Total
                   </strong>
 
                   <strong>
-                    ₹{grandTotal}
+                    ₹
+                    {grandTotal.toLocaleString(
+                      "en-IN"
+                    )}
                   </strong>
-
                 </div>
-
               </div>
 
-
-              {/* DELIVERY INFO */}
-
               <div className="ph-checkout-info-note">
-
                 <FaMapMarkerAlt />
 
                 <span>
-                  Your order will be delivered to
-                  the address provided above.
+                  Your products will be
+                  delivered to the address
+                  provided above.
                 </span>
-
               </div>
-
-
-              {/* CONFIRM */}
 
               <button
                 type="submit"
@@ -879,7 +962,6 @@ function Checkout() {
                   : "Confirm Order"}
               </button>
 
-
               <button
                 type="button"
                 className="ph-checkout-sidebar-back"
@@ -890,15 +972,10 @@ function Checkout() {
               >
                 Back to Cart
               </button>
-
             </section>
-
           </aside>
-
         </form>
-
       </div>
-
     </main>
   );
 }
