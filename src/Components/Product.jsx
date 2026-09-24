@@ -149,7 +149,7 @@ function Product({
         <div className="product-card__image-wrapper">
           <img
             className="product-card__image"
-            src={`/${image}`}
+            src={`${process.env.REACT_APP_BACKEND_URL}/${image}`}
             alt={name}
           />
 
