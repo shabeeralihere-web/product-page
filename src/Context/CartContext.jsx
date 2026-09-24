@@ -1,3 +1,4 @@
+
 import React, {
   createContext,
   useState,
@@ -25,22 +26,18 @@ export const CartProvider = ({ children }) => {
       }
 
       try {
-        const response = await api.get(
-          `/cart/?page=${page}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        const response = await api.get(`/cart/?page=${page}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
         const responseData = response.data;
 
         const items = responseData.data || [];
 
         const totalItems =
-          responseData.pagination?.totalItems ??
-          items.length;
+          responseData.pagination?.totalItems ?? items.length;
 
         setCartItems(items);
         setCartCount(totalItems);
@@ -64,62 +61,46 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      const firstResponse = await api.get(
-        "/cart/?page=1",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      const firstResponse = await api.get("/cart/?page=1", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       const firstData = firstResponse.data;
 
       let allItems = firstData.data || [];
 
-      const totalPages =
-        firstData.pagination?.totalPages || 1;
+      const totalPages = firstData.pagination?.totalPages || 1;
 
       for (let page = 2; page <= totalPages; page++) {
-        const response = await api.get(
-          `/cart/?page=${page}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        const response = await api.get(`/cart/?page=${page}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
         const pageItems = response.data.data || [];
 
-        allItems = [
-          ...allItems,
-          ...pageItems,
-        ];
+        allItems = [...allItems, ...pageItems];
       }
 
       return allItems;
     } catch (error) {
-      console.log(
-        "GET ALL CART ITEMS ERROR:",
-        error
-      );
+      console.log("GET ALL CART ITEMS ERROR:", error);
 
       return [];
     }
   }, [accessToken]);
 
-  const updateCartQuantity = async (
-    cartId,
-    newQuantity
-  ) => {
+  const updateCartQuantity = async (cartId, newQuantity) => {
     if (newQuantity < 1) {
       return;
     }
 
     try {
       await api.put(
-        "http://localhost:8000/api/cart/update",
+        "/cart/update",
         {
           cartId,
           quantity: newQuantity,
@@ -142,10 +123,7 @@ export const CartProvider = ({ children }) => {
         )
       );
     } catch (error) {
-      console.log(
-        "UPDATE CART ERROR:",
-        error
-      );
+      console.log("UPDATE CART ERROR:", error);
 
       throw error;
     }
@@ -153,32 +131,24 @@ export const CartProvider = ({ children }) => {
 
   const removeCartItem = async (cartId) => {
     try {
-      await api.delete(
-        "http://localhost:8000/api/cart/remove",
-        {
-          data: {
-            cartId,
-          },
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await api.delete("/cart/remove", {
+        data: {
+          cartId,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       setCartItems((previousItems) =>
-        previousItems.filter(
-          (item) => item._id !== cartId
-        )
+        previousItems.filter((item) => item._id !== cartId)
       );
 
       setCartCount((previousCount) =>
         Math.max(previousCount - 1, 0)
       );
     } catch (error) {
-      console.log(
-        "REMOVE CART ERROR:",
-        error
-      );
+      console.log("REMOVE CART ERROR:", error);
 
       throw error;
     }
@@ -186,22 +156,16 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = async () => {
     try {
-      await api.delete(
-        "/cart/clear",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await api.delete("/cart/clear", {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       setCartItems([]);
       setCartCount(0);
     } catch (error) {
-      console.log(
-        "CLEAR CART ERROR:",
-        error
-      );
+      console.log("CLEAR CART ERROR:", error);
 
       throw error;
     }
@@ -236,3 +200,4 @@ export const CartProvider = ({ children }) => {
 };
 
 export default CartContext;
+
