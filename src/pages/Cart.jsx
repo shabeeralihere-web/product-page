@@ -408,7 +408,7 @@ function Cart() {
 
             const productImage =
               product.image
-                ? `http://localhost:8000/${product.image.replace(
+                ? `/${product.image.replace(
                     /\\/g,
                     "/"
                   )}`

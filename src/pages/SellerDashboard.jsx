@@ -46,7 +46,7 @@ function SellerDashboard() {
         localStorage.getItem("accessToken");
 
       const response = await api.get(
-        "http://localhost:8000/api/products/my-products",
+        "/products/my-products",
         {
           headers: {
             Authorization: `Bearer ${token}`,

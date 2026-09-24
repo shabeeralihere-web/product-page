@@ -182,7 +182,7 @@ function Checkout() {
           item.productId;
 
         await api.post(
-          "http://localhost:8000/api/orders/create",
+          "/orders/create",
           {
             productId: product._id,
             productName: product.name,
@@ -827,7 +827,7 @@ function Checkout() {
                                 "http"
                               )
                                 ? product.image
-                                : `http://localhost:8000/${product.image}`
+                                : `/${product.image}`
                             }
                             alt={
                               product.name

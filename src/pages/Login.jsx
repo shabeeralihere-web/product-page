@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -12,7 +13,6 @@ import { toast } from "react-toastify";
 
 import api from "../api";
 import { useAuth } from "../Context/AuthContext";
-
 import "../Styles/Login.css";
 
 const Login = () => {
@@ -20,6 +20,7 @@ const Login = () => {
   const { login } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -31,10 +32,6 @@ const Login = () => {
     password: "",
     general: "",
   });
-
-  const [isLoading, setIsLoading] = useState(false);
-
-  // ================= HANDLE CHANGE =================
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,15 +48,12 @@ const Login = () => {
     });
   };
 
-  // ================= EMAIL VALIDATION =================
-
   const validateEmail = (value) => {
     if (!value.trim()) {
       return "Email is required";
     }
 
-    const emailPattern =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailPattern.test(value)) {
       return "Please enter a valid email";
@@ -68,8 +62,6 @@ const Login = () => {
     return "";
   };
 
-  // ================= PASSWORD VALIDATION =================
-
   const validatePassword = (value) => {
     if (!value.trim()) {
       return "Password is required";
@@ -77,8 +69,6 @@ const Login = () => {
 
     return "";
   };
-
-  // ================= FORM VALIDATION =================
 
   const validateForm = () => {
     const newErrors = {};
@@ -103,44 +93,23 @@ const Login = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ================= SUBMIT =================
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isValid = validateForm();
-
-    if (!isValid) {
+    if (!validateForm()) {
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const response = await api.post(
-        "http://localhost:8000/api/auth/login",
-        formData
-      );
-
-      console.log(
-        "LOGIN RESPONSE:",
-        response.data
-      );
-
-      console.log(
-        "ROLE:",
-        response.data.data.role
-      );
+      const response = await api.post("/auth/login", formData);
 
       const loginData = {
         accessToken: response.data.accessToken,
-
         role: response.data.data.role,
-
         firstName: response.data.data.firstName,
-
         lastName: response.data.data.lastName,
-
         email: response.data.data.email,
       };
 
@@ -158,11 +127,8 @@ const Login = () => {
         navigate("/products");
       }
     } catch (error) {
-      console.log(error);
-
       const errorMessage =
-        error.response?.data?.message ||
-        "Invalid email or password";
+        error.response?.data?.message || "Invalid email or password";
 
       setErrors({
         email: "",
@@ -182,20 +148,10 @@ const Login = () => {
       <div className="login-page__background-glow login-page__background-glow--two" />
 
       <div className="login-container">
-
-        {/* ================= BRAND SIDE ================= */}
-
         <section className="login-brand">
-
           <div className="login-brand__content">
-
-            <Link
-              to="/"
-              className="login-brand__logo"
-            >
-              <span className="login-brand__logo-mark">
-                P
-              </span>
+            <Link to="/" className="login-brand__logo">
+              <span className="login-brand__logo-mark">P</span>
 
               <span>
                 Product<span>Hub</span>
@@ -203,7 +159,6 @@ const Login = () => {
             </Link>
 
             <div className="login-brand__text">
-
               <span className="login-brand__eyebrow">
                 PRODUCT PLATFORM
               </span>
@@ -215,59 +170,39 @@ const Login = () => {
               </h1>
 
               <p>
-                Discover products, manage your store,
-                and enjoy a simple shopping experience
-                built around you.
+                Discover products, manage your store, and enjoy a simple
+                shopping experience built around you.
               </p>
-
             </div>
 
             <div className="login-brand__points">
-
               <div className="login-brand__point">
                 <span className="login-brand__point-icon">
                   <FaCheck />
                 </span>
-
-                <span>
-                  Simple product discovery
-                </span>
+                <span>Simple product discovery</span>
               </div>
 
               <div className="login-brand__point">
                 <span className="login-brand__point-icon">
                   <FaCheck />
                 </span>
-
-                <span>
-                  Seller-friendly management
-                </span>
+                <span>Seller-friendly management</span>
               </div>
 
               <div className="login-brand__point">
                 <span className="login-brand__point-icon">
                   <FaCheck />
                 </span>
-
-                <span>
-                  Secure account access
-                </span>
+                <span>Secure account access</span>
               </div>
-
             </div>
-
           </div>
-
         </section>
 
-        {/* ================= LOGIN FORM ================= */}
-
         <section className="login-form-section">
-
           <div className="login-form-card">
-
             <div className="login-form-header">
-
               <div className="login-form-header__icon">
                 <FaUser />
               </div>
@@ -276,37 +211,20 @@ const Login = () => {
                 WELCOME BACK
               </span>
 
-              <h2>
-                Sign in to ProductHub
-              </h2>
+              <h2>Sign in to ProductHub</h2>
 
-              <p>
-                Enter your details to continue.
-              </p>
-
+              <p>Enter your details to continue.</p>
             </div>
 
-            <form
-              className="login-form"
-              onSubmit={handleSubmit}
-            >
-
-              {/* EMAIL */}
-
+            <form className="login-form" onSubmit={handleSubmit}>
               <div className="login-field">
-
-                <label htmlFor="email">
-                  Email address
-                </label>
+                <label htmlFor="email">Email address</label>
 
                 <div
                   className={`login-input-wrapper ${
-                    errors.email
-                      ? "login-input-wrapper--error"
-                      : ""
+                    errors.email ? "login-input-wrapper--error" : ""
                   }`}
                 >
-
                   <FaUser className="login-input-icon" />
 
                   <input
@@ -318,42 +236,26 @@ const Login = () => {
                     onChange={handleChange}
                     autoComplete="email"
                   />
-
                 </div>
 
                 {errors.email && (
-                  <p className="login-field-error">
-                    {errors.email}
-                  </p>
+                  <p className="login-field-error">{errors.email}</p>
                 )}
-
               </div>
 
-              {/* PASSWORD */}
-
               <div className="login-field">
-
-                <label htmlFor="password">
-                  Password
-                </label>
+                <label htmlFor="password">Password</label>
 
                 <div
                   className={`login-input-wrapper ${
-                    errors.password
-                      ? "login-input-wrapper--error"
-                      : ""
+                    errors.password ? "login-input-wrapper--error" : ""
                   }`}
                 >
-
                   <FaLock className="login-input-icon" />
 
                   <input
                     id="password"
-                    type={
-                      showPassword
-                        ? "text"
-                        : "password"
-                    }
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Enter your password"
                     value={formData.password}
@@ -364,35 +266,17 @@ const Login = () => {
                   <button
                     type="button"
                     className="login-password-toggle"
-                    onClick={() =>
-                      setShowPassword(
-                        !showPassword
-                      )
-                    }
-                    aria-label={
-                      showPassword
-                        ? "Hide password"
-                        : "Show password"
-                    }
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {showPassword ? (
-                      <FaEyeSlash />
-                    ) : (
-                      <FaEye />
-                    )}
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
-
                 </div>
 
                 {errors.password && (
-                  <p className="login-field-error">
-                    {errors.password}
-                  </p>
+                  <p className="login-field-error">{errors.password}</p>
                 )}
-
               </div>
-
-              {/* GENERAL ERROR */}
 
               {errors.general && (
                 <div className="login-general-error">
@@ -401,14 +285,11 @@ const Login = () => {
                 </div>
               )}
 
-              {/* SUBMIT */}
-
               <button
                 type="submit"
                 className="login-submit"
                 disabled={isLoading}
               >
-
                 {isLoading ? (
                   <>
                     <span className="login-submit__spinner" />
@@ -420,33 +301,23 @@ const Login = () => {
                     <FaArrowRight />
                   </>
                 )}
-
               </button>
-
             </form>
 
-            {/* SIGNUP */}
-
             <div className="login-signup">
-
-              <span>
-                Don't have an account?
-              </span>
+              <span>Don't have an account?</span>
 
               <Link to="/signup">
                 Create one
                 <FaArrowRight />
               </Link>
-
             </div>
-
           </div>
-
         </section>
-
       </div>
     </main>
   );
 };
 
 export default Login;
+

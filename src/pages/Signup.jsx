@@ -231,7 +231,7 @@ const Signup = () => {
       };
 
       const response = await api.post(
-        "http://localhost:8000/api/auth/register",
+        "/auth/register",
         userData
       );
 

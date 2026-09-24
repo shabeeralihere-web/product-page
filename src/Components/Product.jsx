@@ -1,9 +1,7 @@
+
 import React, { useState, useContext } from "react";
-import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import CartContext from "../Context/CartContext";
-
 import {
   FaEdit,
   FaTrash,
@@ -12,6 +10,8 @@ import {
   FaTimes,
 } from "react-icons/fa";
 
+import api from "../api";
+import CartContext from "../Context/CartContext";
 import "../Styles/Product.css";
 
 function Product({
@@ -24,7 +24,6 @@ function Product({
   isMyProduct = false,
 }) {
   const navigate = useNavigate();
-
   const role = localStorage.getItem("role");
 
   const { getCart, setCartCount } = useContext(CartContext);
@@ -36,8 +35,6 @@ function Product({
     title: "",
     message: "",
   });
-
-  // ================= VIEW PRODUCT =================
 
   function handleView() {
     if (role === "admin") {
@@ -51,31 +48,23 @@ function Product({
     navigate(`/product/${id}`);
   }
 
-  // ================= EDIT PRODUCT =================
-
   function handleEdit() {
     navigate(`/edit-product/${id}`);
   }
-
-  // ================= ADD TO CART =================
 
   async function handleAddToCart() {
     try {
       const token = localStorage.getItem("accessToken");
 
       const response = await api.post(
-        "http://localhost:8000/api/cart/add",
-        {
-          productId: id,
-        },
+        "/cart/add",
+        { productId: id },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-
-      console.log(response.data);
 
       const pagination = await getCart(1);
 
@@ -97,23 +86,18 @@ function Product({
 
       setShowCartModal(true);
     } catch (error) {
-      console.log(error);
-
       toast.error(
-        error.response?.data?.message ||
-          "Failed to add product to cart"
+        error.response?.data?.message || "Failed to add product to cart"
       );
     }
   }
-
-  // ================= DELETE PRODUCT =================
 
   async function handleDelete() {
     try {
       const token = localStorage.getItem("accessToken");
 
-      const response = await api.delete(
-        `http://localhost:8000/api/products/deleteProduct/${id}`,
+      await api.delete(
+        `/products/deleteProduct/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -121,40 +105,27 @@ function Product({
         }
       );
 
-      console.log(response.data);
-
       if (onDelete) {
         onDelete(id);
       }
 
       setShowModal(false);
-
       toast.success("Product deleted successfully");
     } catch (error) {
-      console.log(error);
-
       toast.error(
-        error.response?.data?.message ||
-          "Failed to delete product"
+        error.response?.data?.message || "Failed to delete product"
       );
     }
   }
 
-  // ================= PERMISSIONS =================
-
   const canManageProduct =
-    role === "admin" ||
-    (role === "seller" && isMyProduct);
+    role === "admin" || (role === "seller" && isMyProduct);
 
   const canAddToCart =
-    role === "user" ||
-    (role === "seller" && !isMyProduct);
+    role === "user" || (role === "seller" && !isMyProduct);
 
   const isCardClickable =
-    role !== "admin" &&
-    !(role === "seller" && isMyProduct);
-
-  // ================= UI =================
+    role !== "admin" && !(role === "seller" && isMyProduct);
 
   return (
     <>
@@ -175,18 +146,14 @@ function Product({
           }
         }}
       >
-        {/* ================= IMAGE ================= */}
-
         <div className="product-card__image-wrapper">
           <img
             className="product-card__image"
-            src={`http://localhost:8000/${image}`}
+            src={`/${image}`}
             alt={name}
           />
 
-          <span className="product-card__category">
-            {category}
-          </span>
+          <span className="product-card__category">{category}</span>
 
           {role === "seller" && isMyProduct && (
             <span className="product-card__owner-badge">
@@ -195,34 +162,23 @@ function Product({
           )}
 
           {role === "admin" && (
-            <span className="product-card__owner-badge">
-              Admin
-            </span>
+            <span className="product-card__owner-badge">Admin</span>
           )}
         </div>
 
-        {/* ================= PRODUCT INFO ================= */}
-
         <div className="product-card__body">
           <div className="product-card__main">
-            <h2 className="product-card__name">
-              {name}
-            </h2>
+            <h2 className="product-card__name">{name}</h2>
 
-            <p className="product-card__price">
-              ₹{price}
-            </p>
+            <p className="product-card__price">₹{price}</p>
           </div>
 
           {isCardClickable && (
             <div className="product-card__view">
               <span>View product</span>
-
               <FaArrowRight />
             </div>
           )}
-
-          {/* ================= ACTIONS ================= */}
 
           <div className="product-card__actions">
             {canManageProduct && (
@@ -235,7 +191,6 @@ function Product({
                 }}
               >
                 <FaEdit />
-
                 <span>Edit</span>
               </button>
             )}
@@ -250,7 +205,6 @@ function Product({
                 }}
               >
                 <FaTrash />
-
                 <span>Delete</span>
               </button>
             )}
@@ -265,15 +219,12 @@ function Product({
                 }}
               >
                 <FaCartPlus />
-
                 <span>Add to Cart</span>
               </button>
             )}
           </div>
         </div>
       </article>
-
-      {/* ================= CART MODAL ================= */}
 
       {showCartModal && (
         <div
@@ -301,9 +252,7 @@ function Product({
               <FaCartPlus />
             </div>
 
-            <h2 id="cart-modal-title">
-              {cartModalMessage.title}
-            </h2>
+            <h2 id="cart-modal-title">{cartModalMessage.title}</h2>
 
             <p>{cartModalMessage.message}</p>
 
@@ -325,15 +274,12 @@ function Product({
                 }}
               >
                 Go to Cart
-
                 <FaArrowRight />
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* ================= DELETE MODAL ================= */}
 
       {showModal && (
         <div
@@ -361,13 +307,10 @@ function Product({
               <FaTrash />
             </div>
 
-            <h2 id="delete-modal-title">
-              Delete Product?
-            </h2>
+            <h2 id="delete-modal-title">Delete Product?</h2>
 
             <p>
-              Are you sure you want to delete{" "}
-              <strong>{name}</strong>?
+              Are you sure you want to delete <strong>{name}</strong>?
             </p>
 
             <div className="product-modal__actions">
@@ -385,7 +328,6 @@ function Product({
                 onClick={handleDelete}
               >
                 <FaTrash />
-
                 Delete
               </button>
             </div>
@@ -397,3 +339,6 @@ function Product({
 }
 
 export default Product;
+
+
+

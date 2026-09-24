@@ -38,7 +38,7 @@ function EditProduct() {
         setIsLoading(true);
 
         const response = await api.get(
-          `http://localhost:8000/api/products/getProduct/${id}`
+          `/products/getProduct/${id}`
         );
 
         console.log(response.data);
@@ -116,7 +116,7 @@ function EditProduct() {
       const token = localStorage.getItem("accessToken");
 
       const response = await api.put(
-        `http://localhost:8000/api/products/updateProduct/${id}`,
+        `/products/updateProduct/${id}`,
         formData,
         {
           headers: {
@@ -291,7 +291,7 @@ function EditProduct() {
                     <div className="edit-product-preview__image">
                       {oldImage ? (
                         <img
-                          src={`http://localhost:8000/${oldImage}`}
+                          src={`/${oldImage}`}
                           alt="Current product"
                         />
                       ) : (

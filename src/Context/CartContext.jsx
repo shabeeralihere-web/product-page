@@ -26,7 +26,7 @@ export const CartProvider = ({ children }) => {
 
       try {
         const response = await api.get(
-          `http://localhost:8000/api/cart/?page=${page}`,
+          `/cart/?page=${page}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -65,7 +65,7 @@ export const CartProvider = ({ children }) => {
 
     try {
       const firstResponse = await api.get(
-        "http://localhost:8000/api/cart/?page=1",
+        "/cart/?page=1",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -82,7 +82,7 @@ export const CartProvider = ({ children }) => {
 
       for (let page = 2; page <= totalPages; page++) {
         const response = await api.get(
-          `http://localhost:8000/api/cart/?page=${page}`,
+          `/cart/?page=${page}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -187,7 +187,7 @@ export const CartProvider = ({ children }) => {
   const clearCart = async () => {
     try {
       await api.delete(
-        "http://localhost:8000/api/cart/clear",
+        "/cart/clear",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,

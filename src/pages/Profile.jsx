@@ -38,7 +38,7 @@ function Profile() {
         const token = localStorage.getItem("accessToken");
 
         const response = await api.get(
-          "http://localhost:8000/api/auth/profile",
+          "/auth/profile",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -73,7 +73,7 @@ function Profile() {
 
     setImagePreview(
       profile.profileImage
-        ? `http://localhost:8000/${profile.profileImage}`
+        ? `/${profile.profileImage}`
         : null
     );
 
@@ -158,7 +158,7 @@ function Profile() {
       }
 
       const response = await api.put(
-        "http://localhost:8000/api/auth/profile",
+        "/auth/profile",
         formData,
         {
           headers: {
@@ -244,7 +244,7 @@ function Profile() {
   }
 
   const profileImageUrl = profile.profileImage
-    ? `http://localhost:8000/${profile.profileImage}`
+    ? `/${profile.profileImage}`
     : null;
 
   if (!isEditing) {

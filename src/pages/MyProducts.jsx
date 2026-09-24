@@ -31,7 +31,7 @@ function MyProducts() {
           localStorage.getItem("accessToken");
 
         const response = await api.get(
-          `http://localhost:8000/api/products/my-products?page=${currentPage}&limit=6`,
+          `/products/my-products?page=${currentPage}&limit=6`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

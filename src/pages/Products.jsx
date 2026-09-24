@@ -19,7 +19,7 @@ function Products() {
         const token = localStorage.getItem("accessToken");
 
         const response = await api.get(
-          `http://localhost:8000/api/products/getProducts?search=${encodeURIComponent(
+          `/products/getProducts?search=${encodeURIComponent(
             search
           )}&page=${currentPage}&limit=6`,
           {

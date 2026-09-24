@@ -27,7 +27,7 @@ function ProductDetails() {
         setIsLoading(true);
 
         const response = await api.get(
-          `http://localhost:8000/api/products/getProduct/${id}`
+          `/products/getProduct/${id}`
         );
 
         console.log(response.data);
@@ -50,7 +50,7 @@ function ProductDetails() {
       const token = localStorage.getItem("accessToken");
 
       const response = await api.post(
-        "http://localhost:8000/api/cart/add",
+        "/cart/add",
         {
           productId: id,
         },
@@ -141,7 +141,7 @@ function ProductDetails() {
           <div className="details-image-section">
             <div className="details-image-wrapper">
               <img
-                src={`http://localhost:8000/${product.image}`}
+                src={`/${product.image}`}
                 alt={product.name}
                 className="details-image"
               />

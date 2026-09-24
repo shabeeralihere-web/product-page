@@ -27,7 +27,7 @@ const AdminDashboard = () => {
       const [usersResponse, productsResponse] =
         await Promise.all([
           api.get(
-            "http://localhost:8000/api/auth/users",
+            "/auth/users",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -36,7 +36,7 @@ const AdminDashboard = () => {
           ),
 
           api.get(
-            "http://localhost:8000/api/products/getProducts",
+            "/products/getProducts",
             {
               headers: {
                 Authorization: `Bearer ${token}`,
