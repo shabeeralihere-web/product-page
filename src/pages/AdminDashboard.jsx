@@ -371,7 +371,7 @@ const AdminDashboard = () => {
                         <div className="ph-admin-product-image">
 
                           <img
-                            src={`http://localhost:8000/${product.image}`}
+                            src={`process.env.REACT_APP_BACKEND_URL/${product.image}`}
                             alt={product.name}
                           />
 

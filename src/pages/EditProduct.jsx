@@ -32,6 +32,18 @@ function EditProduct() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) {
+      return "";
+    }
+
+    if (imagePath.startsWith("http")) {
+      return imagePath;
+    }
+
+    return `${process.env.REACT_APP_BACKEND_URL}/${imagePath}`;
+  };
+
   useEffect(() => {
     async function getProduct() {
       try {
@@ -267,9 +279,7 @@ function EditProduct() {
                         New image selected
                       </span>
 
-                      <strong>
-                        {image.name}
-                      </strong>
+                      <strong>{image.name}</strong>
 
                       <span>
                         Click anywhere to choose another
@@ -291,7 +301,7 @@ function EditProduct() {
                     <div className="edit-product-preview__image">
                       {oldImage ? (
                         <img
-                          src={`/${oldImage}`}
+                          src={getImageUrl(oldImage)}
                           alt="Current product"
                         />
                       ) : (
@@ -305,9 +315,7 @@ function EditProduct() {
                         Current image
                       </span>
 
-                      <strong>
-                        Product image
-                      </strong>
+                      <strong>Product image</strong>
 
                       <span>
                         Click anywhere to choose a new

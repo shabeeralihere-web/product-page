@@ -147,11 +147,15 @@ function Product({
         }}
       >
         <div className="product-card__image-wrapper">
-          <img
-            className="product-card__image"
-            src={`${process.env.REACT_APP_BACKEND_URL}/${image}`}
-            alt={name}
-          />
+         <img
+  className="product-card__image"
+  src={
+    image?.startsWith("http")
+      ? image
+      : `${process.env.REACT_APP_BACKEND_URL}/${image}`
+  }
+  alt={name}
+/>
 
           <span className="product-card__category">{category}</span>
 
