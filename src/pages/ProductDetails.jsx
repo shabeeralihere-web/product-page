@@ -1,5 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useParams, useNavigate } from "react-router-dom";
+
 import {
   FaArrowLeft,
   FaCartPlus,
@@ -47,7 +52,8 @@ function ProductDetails() {
 
   async function handleAddToCart() {
     try {
-      const token = localStorage.getItem("accessToken");
+      const token =
+        localStorage.getItem("accessToken");
 
       const response = await api.post(
         "/cart/add",
@@ -65,10 +71,15 @@ function ProductDetails() {
 
       getCart();
 
-      if (response.data.message === "Product added to cart") {
+      if (
+        response.data.message ===
+        "Product added to cart"
+      ) {
         toast.success("Product added to cart");
       } else {
-        toast.info("Product is already in your cart");
+        toast.info(
+          "Product is already in your cart"
+        );
       }
     } catch (error) {
       console.log(error);
@@ -86,6 +97,7 @@ function ProductDetails() {
         <div className="details-page__container">
           <div className="details-loading">
             <div className="details-loading__spinner" />
+
             <p>Loading product...</p>
           </div>
         </div>
@@ -98,7 +110,9 @@ function ProductDetails() {
       <main className="details-page">
         <div className="details-page__container">
           <div className="details-not-found">
-            <div className="details-not-found__icon">!</div>
+            <div className="details-not-found__icon">
+              !
+            </div>
 
             <span className="details-page__eyebrow">
               PRODUCTHUB
@@ -107,14 +121,17 @@ function ProductDetails() {
             <h1>Product Not Found</h1>
 
             <p>
-              The product you're looking for could not be found
-              or may no longer be available.
+              The product you're looking for could
+              not be found or may no longer be
+              available.
             </p>
 
             <button
               type="button"
               className="details-button details-button--primary"
-              onClick={() => navigate("/products")}
+              onClick={() =>
+                navigate("/products")
+              }
             >
               <FaArrowLeft />
               Back to Products
@@ -124,6 +141,24 @@ function ProductDetails() {
       </main>
     );
   }
+
+  /*
+    Supports both:
+
+    Cloudinary:
+    https://res.cloudinary.com/...
+
+    Old local image:
+    uploads/image.jpeg
+  */
+  const productImage = product.image
+    ? product.image.startsWith("http")
+      ? product.image
+      : `${process.env.REACT_APP_BACKEND_URL}/${product.image.replace(
+          /\\/g,
+          "/"
+        )}`
+    : "";
 
   return (
     <main className="details-page">
@@ -141,7 +176,7 @@ function ProductDetails() {
           <div className="details-image-section">
             <div className="details-image-wrapper">
               <img
-                src={`/${product.image}`}
+                src={productImage}
                 alt={product.name}
                 className="details-image"
               />
@@ -174,9 +209,10 @@ function ProductDetails() {
               </span>
 
               <p>
-                This product is available in our ProductHub
-                collection. Add it to your cart and continue
-                shopping through the ProductHub marketplace.
+                This product is available in our
+                ProductHub collection. Add it to your
+                cart and continue shopping through
+                the ProductHub marketplace.
               </p>
             </div>
 
@@ -184,7 +220,9 @@ function ProductDetails() {
               <button
                 type="button"
                 className="details-button details-button--secondary"
-                onClick={() => navigate("/products")}
+                onClick={() =>
+                  navigate("/products")
+                }
               >
                 <FaArrowLeft />
                 Continue Shopping
@@ -203,7 +241,10 @@ function ProductDetails() {
             <div className="details-meta">
               <div className="details-meta__item">
                 <span>Category</span>
-                <strong>{product.category}</strong>
+
+                <strong>
+                  {product.category}
+                </strong>
               </div>
             </div>
           </div>

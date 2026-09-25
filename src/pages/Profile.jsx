@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import {
   FaCamera,
   FaCheck,
@@ -30,12 +31,29 @@ function Profile() {
 
   const [isSaving, setIsSaving] = useState(false);
 
+  // Supports both Cloudinary and old local images
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) {
+      return "";
+    }
+
+    if (imagePath.startsWith("http")) {
+      return imagePath;
+    }
+
+    return `${process.env.REACT_APP_BACKEND_URL}/${imagePath.replace(
+      /\\/g,
+      "/"
+    )}`;
+  };
+
   useEffect(() => {
     async function getProfile() {
       try {
         setIsLoading(true);
 
-        const token = localStorage.getItem("accessToken");
+        const token =
+          localStorage.getItem("accessToken");
 
         const response = await api.get(
           "/auth/profile",
@@ -73,7 +91,7 @@ function Profile() {
 
     setImagePreview(
       profile.profileImage
-        ? `/${profile.profileImage}`
+        ? getImageUrl(profile.profileImage)
         : null
     );
 
@@ -124,14 +142,17 @@ function Profile() {
     }
 
     if (bio.length > 300) {
-      toast.error("Bio must be 300 characters or less");
+      toast.error(
+        "Bio must be 300 characters or less"
+      );
       return;
     }
 
     try {
       setIsSaving(true);
 
-      const token = localStorage.getItem("accessToken");
+      const token =
+        localStorage.getItem("accessToken");
 
       const formData = new FormData();
 
@@ -145,10 +166,7 @@ function Profile() {
         lastName.trim()
       );
 
-      formData.append(
-        "bio",
-        bio.trim()
-      );
+      formData.append("bio", bio.trim());
 
       if (selectedImage) {
         formData.append(
@@ -244,7 +262,7 @@ function Profile() {
   }
 
   const profileImageUrl = profile.profileImage
-    ? `/${profile.profileImage}`
+    ? getImageUrl(profile.profileImage)
     : null;
 
   if (!isEditing) {
@@ -298,18 +316,14 @@ function Profile() {
                 <div className="ph-profile-email">
                   <FaEnvelope />
 
-                  <span>
-                    {profile.email}
-                  </span>
+                  <span>{profile.email}</span>
                 </div>
               </div>
 
               <div className="ph-profile-role">
                 <FaIdBadge />
 
-                <span>
-                  {profile.role}
-                </span>
+                <span>{profile.role}</span>
               </div>
             </div>
 
@@ -364,7 +378,8 @@ function Profile() {
                   <span>Bio</span>
 
                   <strong>
-                    {profile.bio || "No bio added yet."}
+                    {profile.bio ||
+                      "No bio added yet."}
                   </strong>
                 </div>
 
@@ -501,7 +516,9 @@ function Profile() {
                     type="text"
                     value={firstName}
                     onChange={(event) =>
-                      setFirstName(event.target.value)
+                      setFirstName(
+                        event.target.value
+                      )
                     }
                     placeholder="Enter first name"
                   />
@@ -521,7 +538,9 @@ function Profile() {
                     type="text"
                     value={lastName}
                     onChange={(event) =>
-                      setLastName(event.target.value)
+                      setLastName(
+                        event.target.value
+                      )
                     }
                     placeholder="Enter last name"
                   />
@@ -590,4 +609,4 @@ function Profile() {
   );
 }
 
-export default Profile;
+export default Profile; 

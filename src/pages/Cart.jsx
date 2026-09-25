@@ -40,17 +40,12 @@ function Cart() {
   const [totalPages, setTotalPages] = useState(1);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingOut, setIsCheckingOut] =
-    useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const [showRemoveModal, setShowRemoveModal] =
-    useState(false);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [showClearModal, setShowClearModal] = useState(false);
 
-  const [showClearModal, setShowClearModal] =
-    useState(false);
-
-  const [selectedCartId, setSelectedCartId] =
-    useState(null);
+  const [selectedCartId, setSelectedCartId] = useState(null);
 
   const loadCart = useCallback(
     async (page) => {
@@ -88,8 +83,7 @@ function Cart() {
     currentQuantity,
     change
   ) => {
-    const newQuantity =
-      currentQuantity + change;
+    const newQuantity = currentQuantity + change;
 
     if (newQuantity < 1) {
       return;
@@ -101,9 +95,7 @@ function Cart() {
         newQuantity
       );
     } catch (error) {
-      toast.error(
-        "Unable to update quantity"
-      );
+      toast.error("Unable to update quantity");
     }
   };
 
@@ -118,9 +110,7 @@ function Cart() {
     }
 
     try {
-      await removeCartItem(
-        selectedCartId
-      );
+      await removeCartItem(selectedCartId);
 
       setShowRemoveModal(false);
       setSelectedCartId(null);
@@ -130,16 +120,13 @@ function Cart() {
         currentPage > 1
       ) {
         setCurrentPage(
-          (previousPage) =>
-            previousPage - 1
+          (previousPage) => previousPage - 1
         );
       } else {
         await loadCart(currentPage);
       }
     } catch (error) {
-      toast.error(
-        "Unable to remove product"
-      );
+      toast.error("Unable to remove product");
     }
   };
 
@@ -151,9 +138,7 @@ function Cart() {
       setCurrentPage(1);
       setTotalPages(1);
     } catch (error) {
-      toast.error(
-        "Unable to clear cart"
-      );
+      toast.error("Unable to clear cart");
     }
   };
 
@@ -161,18 +146,12 @@ function Cart() {
     try {
       setIsCheckingOut(true);
 
-      const allItems =
-        await getAllCartItems();
+      const allItems = await getAllCartItems();
 
-      console.log(
-        "ALL CART ITEMS:",
-        allItems
-      );
+      console.log("ALL CART ITEMS:", allItems);
 
       if (!allItems.length) {
-        toast.error(
-          "Your cart is empty"
-        );
+        toast.error("Your cart is empty");
         return;
       }
 
@@ -182,14 +161,9 @@ function Cart() {
         },
       });
     } catch (error) {
-      console.log(
-        "CHECKOUT ERROR:",
-        error
-      );
+      console.log("CHECKOUT ERROR:", error);
 
-      toast.error(
-        "Unable to continue to checkout"
-      );
+      toast.error("Unable to continue to checkout");
     } finally {
       setIsCheckingOut(false);
     }
@@ -202,8 +176,7 @@ function Cart() {
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage(
-        (previousPage) =>
-          previousPage - 1
+        (previousPage) => previousPage - 1
       );
     }
   };
@@ -211,8 +184,7 @@ function Cart() {
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage(
-        (previousPage) =>
-          previousPage + 1
+        (previousPage) => previousPage + 1
       );
     }
   };
@@ -228,9 +200,7 @@ function Cart() {
           <div className="ph-cart-loading">
             <div className="ph-cart-loading-spinner"></div>
 
-            <p>
-              Loading your cart...
-            </p>
+            <p>Loading your cart...</p>
           </div>
         </div>
       </main>
@@ -254,21 +224,16 @@ function Cart() {
               YOUR CART
             </span>
 
-            <h1>
-              Your cart is empty
-            </h1>
+            <h1>Your cart is empty</h1>
 
             <p>
-              Looks like you haven't
-              added anything to your
-              cart yet.
+              Looks like you haven't added anything to
+              your cart yet.
             </p>
 
             <button
               className="ph-cart-empty-button"
-              onClick={
-                handleContinueShopping
-              }
+              onClick={handleContinueShopping}
             >
               <FaShoppingBag />
               Continue Shopping
@@ -285,9 +250,7 @@ function Cart() {
         <header className="ph-cart-header">
           <button
             className="ph-cart-back-button"
-            onClick={
-              handleContinueShopping
-            }
+            onClick={handleContinueShopping}
           >
             <FaArrowLeft />
             Continue Shopping
@@ -308,9 +271,8 @@ function Cart() {
               </h1>
 
               <p className="ph-cart-subtitle">
-                Review your products
-                before proceeding to
-                checkout.
+                Review your products before proceeding
+                to checkout.
               </p>
             </div>
           </div>
@@ -318,9 +280,7 @@ function Cart() {
           <div className="ph-cart-header-actions">
             <span className="ph-cart-item-count">
               {cartCount}{" "}
-              {cartCount === 1
-                ? "Item"
-                : "Items"}
+              {cartCount === 1 ? "Item" : "Items"}
             </span>
 
             {cartCount > 0 && (
@@ -344,13 +304,9 @@ function Cart() {
             </div>
 
             <div>
-              <span>
-                Total Products
-              </span>
+              <span>Total Products</span>
 
-              <strong>
-                {cartCount}
-              </strong>
+              <strong>{cartCount}</strong>
             </div>
           </div>
 
@@ -360,13 +316,10 @@ function Cart() {
             </div>
 
             <div>
-              <span>
-                Current Page
-              </span>
+              <span>Current Page</span>
 
               <strong>
-                {currentPage} /{" "}
-                {totalPages}
+                {currentPage} / {totalPages}
               </strong>
             </div>
           </div>
@@ -377,14 +330,10 @@ function Cart() {
             </div>
 
             <div>
-              <span>
-                Checkout
-              </span>
+              <span>Checkout</span>
 
               <strong>
-                {cartCount > 0
-                  ? "Ready"
-                  : "Empty"}
+                {cartCount > 0 ? "Ready" : "Empty"}
               </strong>
             </div>
           </div>
@@ -399,44 +348,44 @@ function Cart() {
 
         <section className="ph-cart-grid">
           {cartItems.map((item) => {
-            const product =
-              item.productId;
+            const product = item.productId;
 
             if (!product) {
               return null;
             }
 
-            const productImage =
-              product.image
-                ? `/${product.image.replace(
+            /*
+              Cloudinary image:
+              https://res.cloudinary.com/...
+
+              Old local image:
+              uploads/image.jpeg
+            */
+            const productImage = product.image
+              ? product.image.startsWith("http")
+                ? product.image
+                : `${process.env.REACT_APP_BACKEND_URL}/${product.image.replace(
                     /\\/g,
                     "/"
                   )}`
-                : "";
+              : "";
 
             const itemTotal =
-              Number(
-                product.price || 0
-              ) *
-              Number(
-                item.quantity || 1
-              );
+              Number(product.price || 0) *
+              Number(item.quantity || 1);
 
             return (
               <article
                 className="ph-cart-card"
                 key={item._id}
                 onClick={() =>
-                  handleProductClick(
-                    product._id
-                  )
+                  handleProductClick(product._id)
                 }
                 role="button"
                 tabIndex={0}
                 onKeyDown={(event) => {
                   if (
-                    event.key ===
-                      "Enter" ||
+                    event.key === "Enter" ||
                     event.key === " "
                   ) {
                     handleProductClick(
@@ -465,8 +414,7 @@ function Cart() {
 
                 <div className="ph-cart-card-content">
                   <span className="ph-cart-category">
-                    {product.category ||
-                      "Product"}
+                    {product.category || "Product"}
                   </span>
 
                   <h2 className="ph-cart-product-name">
@@ -486,9 +434,7 @@ function Cart() {
                       event.stopPropagation()
                     }
                   >
-                    <span>
-                      Quantity
-                    </span>
+                    <span>Quantity</span>
 
                     <div className="ph-cart-quantity-control">
                       <button
@@ -502,10 +448,7 @@ function Cart() {
                             -1
                           );
                         }}
-                        disabled={
-                          item.quantity <=
-                          1
-                        }
+                        disabled={item.quantity <= 1}
                         aria-label="Decrease quantity"
                       >
                         <FaMinus />
@@ -534,15 +477,10 @@ function Cart() {
                   </div>
 
                   <div className="ph-cart-total-row">
-                    <span>
-                      Item Total
-                    </span>
+                    <span>Item Total</span>
 
                     <strong>
-                      ₹
-                      {itemTotal.toFixed(
-                        2
-                      )}
+                      ₹{itemTotal.toFixed(2)}
                     </strong>
                   </div>
 
@@ -555,9 +493,7 @@ function Cart() {
                     <button
                       className="ph-cart-remove-button"
                       onClick={() =>
-                        handleRemoveClick(
-                          item._id
-                        )
+                        handleRemoveClick(item._id)
                       }
                     >
                       <FaTrash />
@@ -574,12 +510,8 @@ function Cart() {
           <div className="ph-cart-pagination">
             <button
               className="ph-cart-pagination-button"
-              onClick={
-                handlePreviousPage
-              }
-              disabled={
-                currentPage === 1
-              }
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
             >
               Previous
             </button>
@@ -589,8 +521,7 @@ function Cart() {
                 {
                   length: totalPages,
                 },
-                (_, index) =>
-                  index + 1
+                (_, index) => index + 1
               ).map((page) => (
                 <button
                   key={page}
@@ -610,12 +541,9 @@ function Cart() {
 
             <button
               className="ph-cart-pagination-button"
-              onClick={
-                handleNextPage
-              }
+              onClick={handleNextPage}
               disabled={
-                currentPage ===
-                totalPages
+                currentPage === totalPages
               }
             >
               Next
@@ -634,29 +562,23 @@ function Cart() {
                 READY TO ORDER?
               </span>
 
-              <h2>
-                Complete your purchase
-              </h2>
+              <h2>Complete your purchase</h2>
 
               <p>
                 {cartCount}{" "}
                 {cartCount === 1
                   ? "product"
                   : "products"}{" "}
-                will be included in
-                your checkout.
+                will be included in your checkout.
               </p>
             </div>
           </div>
 
           <button
             className="ph-cart-checkout-main-button"
-            onClick={
-              handleCheckout
-            }
+            onClick={handleCheckout}
             disabled={
-              isCheckingOut ||
-              cartCount === 0
+              isCheckingOut || cartCount === 0
             }
           >
             <span>
@@ -665,9 +587,7 @@ function Cart() {
                 : "Proceed to Checkout"}
             </span>
 
-            {!isCheckingOut && (
-              <FaArrowRight />
-            )}
+            {!isCheckingOut && <FaArrowRight />}
           </button>
         </section>
       </div>
@@ -676,9 +596,7 @@ function Cart() {
         <div
           className="ph-cart-modal-overlay"
           onClick={() =>
-            setShowRemoveModal(
-              false
-            )
+            setShowRemoveModal(false)
           }
         >
           <div
@@ -691,23 +609,18 @@ function Cart() {
               <FaTrash />
             </div>
 
-            <h2>
-              Remove Product?
-            </h2>
+            <h2>Remove Product?</h2>
 
             <p>
-              Are you sure you want
-              to remove this product
-              from your cart?
+              Are you sure you want to remove this
+              product from your cart?
             </p>
 
             <div className="ph-cart-modal-actions">
               <button
                 className="ph-cart-modal-cancel"
                 onClick={() =>
-                  setShowRemoveModal(
-                    false
-                  )
+                  setShowRemoveModal(false)
                 }
               >
                 Cancel
@@ -715,9 +628,7 @@ function Cart() {
 
               <button
                 className="ph-cart-modal-confirm"
-                onClick={
-                  confirmRemove
-                }
+                onClick={confirmRemove}
               >
                 Remove
               </button>
@@ -730,9 +641,7 @@ function Cart() {
         <div
           className="ph-cart-modal-overlay"
           onClick={() =>
-            setShowClearModal(
-              false
-            )
+            setShowClearModal(false)
           }
         >
           <div
@@ -745,13 +654,10 @@ function Cart() {
               <FaTrash />
             </div>
 
-            <h2>
-              Clear Cart?
-            </h2>
+            <h2>Clear Cart?</h2>
 
             <p>
-              This will remove all
-              products from your
+              This will remove all products from your
               shopping cart.
             </p>
 
@@ -759,9 +665,7 @@ function Cart() {
               <button
                 className="ph-cart-modal-cancel"
                 onClick={() =>
-                  setShowClearModal(
-                    false
-                  )
+                  setShowClearModal(false)
                 }
               >
                 Cancel
@@ -769,9 +673,7 @@ function Cart() {
 
               <button
                 className="ph-cart-modal-confirm"
-                onClick={
-                  confirmClearCart
-                }
+                onClick={confirmClearCart}
               >
                 Clear Cart
               </button>
