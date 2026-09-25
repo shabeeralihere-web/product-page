@@ -3,9 +3,10 @@ import {
   Navigate,
   Route,
   Routes,
+  useLocation,
 } from "react-router-dom";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -45,6 +46,16 @@ function ProtectedRoute({ children, allowedRoles }) {
   return children;
 }
 
+function ScrollToTop() {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname, search]);
+
+  return null;
+}
+
 function App() {
   const [products, setProducts] = useState([]);
 
@@ -58,6 +69,8 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
+
       <div className="app">
 
         <Navbar />
